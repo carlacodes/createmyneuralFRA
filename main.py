@@ -102,7 +102,9 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
     for cc in range(nChan):
         spikes_in_chan = []
         for ss in range(len(traces_hh)):
-            t, wv = get_spike_times(cleaned_data[ss - 1][:, cc])
+            # test = cleaned_data[ss]
+            # test2=test[0][:,cc]
+            t, wv = get_spike_times(cleaned_data[ss][0][cc,:])
             spikes_in_chan.append(t)
             spikes.append(spikes_in_chan)
 
