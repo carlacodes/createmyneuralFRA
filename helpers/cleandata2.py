@@ -76,8 +76,8 @@ def replace_big_stuff(tdata, biglist, replacearray, prepts, postpts):
 
     return tdata
 
-def clean_data(action, tdata=None, ptspercut=24414.0625, useSD = True):
-    global biglist, replacearray, orig, showData, xsd, highthresh, lowthresh, prepts, postpts, analogDisplayOffset, showWeights
+def clean_data(action, tdata=None, ptspercut=24414.0625, useSD = True,  xsd=2.5, highthresh=100, lowthresh=-100, prepts=10, postpts=10):
+    global biglist, replacearray, orig, showData, analogDisplayOffset, showWeights
 
 
     if tdata is None:
