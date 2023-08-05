@@ -38,6 +38,32 @@ def custom_mean(data):
         means[i] = total / m
     return means
 
+# @jit(nopython=True)
+# def pca(data):
+#     Mn = custom_mean(data)
+#     data = data - Mn
+#
+#     U, _, Vt = np.linalg.svd(data, full_matrices=False)
+#     v = Vt.T[:, -2:]
+#
+#     pc = np.dot(data, v)
+#
+#     Cpc = np.cov(pc, rowvar=False)
+#
+#     a1 = Cpc[0, 1] / Cpc[0, 0]
+#     a2 = Cpc[1, 0] / Cpc[1, 1]
+#
+#     art = a1 * pc[:, 0] + a2 * pc[:, 1]
+#     art /= data.shape[1]
+#
+#     out = data - np.outer(art, v[:, 0]) - np.outer(art, v[:, 1])
+#
+#     # Manual concatenation to add art as a new column to the 'out' array
+#     art_column = np.expand_dims(art, axis=1)
+#     out = np.concatenate((out, art_column), axis=1)
+#
+#     return out
+
 @jit(nopython=True)
 def pca(data):
     Mn = custom_mean(data)
@@ -58,12 +84,9 @@ def pca(data):
 
     out = data - np.outer(art, v[:, 0]) - np.outer(art, v[:, 1])
 
-    # Manual concatenation to add art as a new column to the 'out' array
-    art_column = np.expand_dims(art, axis=1)
-    out = np.concatenate((out, art_column), axis=1)
+    return out, v, art
 
-    return out
-@jit(nopython=True)
+# @jit(nopython=True)
 def find_big_stuff(tdata, useSD, lowthresh, highthresh, xsd):
     m, n = tdata.shape
     spikelist = []
@@ -72,18 +95,19 @@ def find_big_stuff(tdata, useSD, lowthresh, highthresh, xsd):
         times_on = np.where(np.diff(tdata[:, i]) == 1)[0]
         times_off = np.where(np.diff(tdata[:, i]) == -1)[0]
 
-        if times_on.size > 0:
-            times = np.empty((times_on.size, 2), dtype=np.int64)
-            for j in range(times_on.size):
-                start = times_on[j]
-                end = times_off[j] + 1
-                times[j, 0] = end
-                times[j, 1] = start
+        if times_on.size > 0 and times_off.size > 0:  # Check if both arrays are non-empty
+            times = np.array([0]) if times_on.size < times_off.size else np.array([])
+            times = np.vstack((times, np.row_stack((times_on, times_off))))
 
-            spikelist.extend(times[:, [0, i, 1]])
+            if times_on.size > times_off.size:
+                times[-1, 1] = tdata.shape[0] - 1
+            elif times_on.size < times_off.size:
+                times = np.row_stack(([0, times_on[0]], times))
+
+            spikelist.extend(times)
 
     return np.array(spikelist)
-@jit(nopython=True)
+# @jit(nopython=True)
 def replace_big_stuff(tdata, biglist, replacearray, prepts, postpts):
     for i in range(biglist.shape[0]):
         atime, ch, btime = biglist[i]
@@ -129,24 +153,26 @@ def clean_data(action, tdata=None, ptspercut=24414.0625, useSD=True, xsd=2.5, hi
             if n < 3:
                 print('Rawdata must have at least 3 channels. Aborting.')
                 return None
+
             print('calculating pca')
-            pcadata = pca(tdata)
+            pcadata, v, _ = pca(tdata)  # Get art along with pcadata and v
             pcadata = np.delete(pcadata, [-2, -1], axis=1)
             print('finding big stuff')
             biglist = find_big_stuff(pcadata, useSD, lowthresh, highthresh, xsd)
 
             replacearray = np.zeros_like(tdata)
             NoSpikesData = replace_big_stuff(tdata, biglist, replacearray, prepts, postpts)
-            pcadata = pca(NoSpikesData)
-            pcadata = np.delete(pcadata, [-2, -1], axis=1)
-            noiseEst = NoSpikesData - pcadata
-            replacearray = noiseEst
-            NoSpikesData = replace_big_stuff(tdata, biglist, replacearray, prepts, postpts)
 
             orig = tdata
-            out = pca(NoSpikesData)
+            out, _, art = pca(NoSpikesData)  # Get art along with pcadata and v for NoSpikesData
+            pcadata_no_spikes = np.delete(out, [-2, -1], axis=1)  # Remove art column
+
+            noiseEst = NoSpikesData - pcadata_no_spikes
+
+            replacearray = noiseEst
 
             return out
+
 
         elif action == 'FindBigStuff':
             return find_big_stuff(tdata, useSD, lowthresh, highthresh, xsd)
@@ -161,16 +187,28 @@ def clean_data(action, tdata=None, ptspercut=24414.0625, useSD=True, xsd=2.5, hi
             return pca(tdata)
 
     else:
+
         showData = tdata
+
         out = np.empty((0, n + 2))
+
         last = int(np.ceil(m / ptspercut))
+
         dataLength = m
 
         for ci in range(last):
             start = int(ci * ptspercut)
+
             stop = min((ci + 1) * ptspercut, dataLength)
 
-            cleaned_data = clean_data('GetCleanedData', tdata[start:stop, :])
+            cleaned_data = clean_data('GetCleanedData', tdata[start:stop],  # Modify this line
+
+                                      ptspercut=ptspercut, useSD=useSD, xsd=xsd,
+
+                                      highthresh=highthresh, lowthresh=lowthresh,
+
+                                      prepts=prepts, postpts=postpts)
+
             out = np.vstack((out, cleaned_data))
 
     return out, None
