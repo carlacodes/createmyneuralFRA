@@ -6,7 +6,7 @@ import numpy as np
 import h5py
 import tdt
 import pandas as pd
-from helpers.cleandata import clean_data
+from helpers.cleandata2 import clean_data
 import scipy.io as sio
 import scipy
 from helpers.getspiketimes import get_spike_times
@@ -93,7 +93,7 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
     for ii in range(len(traces_hh)):
         print('at trial ' + str(ii))
         to_clean = np.vstack((traces_h[ii], traces_hh[ii]))
-        cleaned_data.append(clean_data('GetCleanedData', to_clean))
+        cleaned_data.append(clean_data(0, to_clean))
 
     fs = 24414.065
     nChan = 32

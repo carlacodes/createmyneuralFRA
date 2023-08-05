@@ -176,10 +176,10 @@ def clean_data(action, tdata=None):
         dataLength = m
 
         for ci in range(last):
-            start = ci * ptspercut
+            start = int(ci * ptspercut)
             stop = min((ci + 1) * ptspercut, dataLength)
 
-            cleaned_data = clean_data('GetCleanedData', data[start:stop, :])
+            cleaned_data = clean_data('GetCleanedData', tdata[start:stop, :])
             out = np.vstack((out, cleaned_data))
 
     return out, biglist
