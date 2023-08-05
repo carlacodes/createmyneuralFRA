@@ -5,7 +5,10 @@
 import numpy as np
 import h5py
 import tdt
+from helpers.cleandata import clean_data
+import scipy.io as sio
 import scipy
+from helpers.getspiketimes import get_spike_times
 from scipy.signal import ellip, bilinear, zpk2ss, ss2zpk
 # from helpers.ellipfunc import ellip_filter_design
 from helpers.filterfuncs import filtfilthd
@@ -64,18 +67,55 @@ def highpass_filter(file_path, file_name, tank, output_folder):
             traces_ss = [scipy.signal.filtfilt(b, a, dat[cc, :]) for cc in range(16)]
             traces.append(np.vstack(traces_ss))
 
-        fname = f'HPfBlock1-10{i2 + 1}.h5'
+        fname = f'HPf{block}{i2 + 1}.h5'
         with h5py.File(output_folder + fname, 'w') as hf:
             hf.create_dataset('traces', data=traces, compression='gzip', compression_opts=9)
+    return block
 
+
+def clean_data_pipeline(block, side = 'right'):
+
+    fname = f'HPf' + block + { 1} + '.h5'
+    fname2 = f'HPf' + block + { 2} + '.h5'
+
+    if side == 'right':
+        h = sio.loadmat(fname)
+        hh = sio.loadmat(fname2)
+
+    # Access the traces from the loaded data
+    traces_h = h['traces']
+    traces_hh = hh['traces']
+
+    cleaned_data = []
+    for ii in range(len(traces_hh)):
+        to_clean = np.vstack((traces_h[ii], traces_hh[ii]))
+        cleaned_data.append(clean_data(to_clean, 0))
+
+    fs = 24414.065
+    nChan = 32
+    spikes = []
+
+    for cc in range(nChan):
+        spikes_in_chan = []
+        for ss in range(1, 1097):
+            t, wv = get_spike_times(cleaned_data[ss - 1][:, cc])
+            spikes_in_chan.append(t)
+            spikes.append(spikes_in_chan)
+
+
+    # Save the spikes data in the same format as MATLAB
+    spikes_data = np.array(spikes, dtype=object)
+    with h5py.File('spikes'+block+side+'.h5', 'w') as f:
+        dset = f.create_dataset('spikes', data=spikes, dtype=h5py.special_dtype(vlen=np.dtype('float64')))
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     file_path = 'D:\Data\F1815_Cruella\FRAS/'
     file_name = 'Recording_Session_Date_25-Jan-2023_Time_12-26-44.mat'
     tank = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS/'
-    output_folder = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS\output_filtered'
+    output_folder = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS\output_filtered/'
 
-    highpass_filter(file_path, file_name, tank, output_folder)
+    block = highpass_filter(file_path, file_name, tank, output_folder)
+    clean_data_pipeline(block, side = 'right')
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
