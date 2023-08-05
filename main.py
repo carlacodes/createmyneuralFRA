@@ -5,6 +5,7 @@
 import numpy as np
 import h5py
 import tdt
+import pandas as pd
 from helpers.cleandata import clean_data
 import scipy.io as sio
 import scipy
@@ -67,19 +68,19 @@ def highpass_filter(file_path, file_name, tank, output_folder):
             traces_ss = [scipy.signal.filtfilt(b, a, dat[cc, :]) for cc in range(16)]
             traces.append(np.vstack(traces_ss))
 
-        fname = f'HPf{block}{i2 + 1}.h5'
+        fname = f'HPf{block[0]}{i2 + 1}.h5'
         with h5py.File(output_folder + fname, 'w') as hf:
             hf.create_dataset('traces', data=traces, compression='gzip', compression_opts=9)
     return block
 
 
-def clean_data_pipeline(block, side = 'right'):
-    fname = f'HPf{block[0]}1.h5'
-    fname2 = f'HPf{block[0]}2.h5'
+def clean_data_pipeline(output_folder, block, side = 'right'):
+    fname = f'{output_folder}HPf{block[0]}1.h5'
+    fname2 = f'{output_folder}HPf{block[0]}2.h5'
 
     if side == 'right':
-        h = sio.loadmat(fname)
-        hh = sio.loadmat(fname2)
+        h = h5py.File(fname, 'r')
+        hh = h5py.File(fname2, 'r')
 
     # Access the traces from the loaded data
     traces_h = h['traces']
@@ -88,7 +89,7 @@ def clean_data_pipeline(block, side = 'right'):
     cleaned_data = []
     for ii in range(len(traces_hh)):
         to_clean = np.vstack((traces_h[ii], traces_hh[ii]))
-        cleaned_data.append(clean_data(to_clean, 0))
+        cleaned_data.append(clean_data(0, tdata=to_clean))
 
     fs = 24414.065
     nChan = 32
@@ -114,7 +115,8 @@ if __name__ == '__main__':
     tank = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS/'
     output_folder = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS\output_filtered/'
 
-    block = highpass_filter(file_path, file_name, tank, output_folder)
-    clean_data_pipeline(block, side = 'right')
+    # block = highpass_filter(file_path, file_name, tank, output_folder)
+    block = ['Block1-3']
+    clean_data_pipeline(output_folder, block, side = 'right')
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
