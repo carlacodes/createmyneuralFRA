@@ -74,9 +74,8 @@ def highpass_filter(file_path, file_name, tank, output_folder):
 
 
 def clean_data_pipeline(block, side = 'right'):
-
-    fname = f'HPf' + block + { 1} + '.h5'
-    fname2 = f'HPf' + block + { 2} + '.h5'
+    fname = f'HPf{block[0]}1.h5'
+    fname2 = f'HPf{block[0]}2.h5'
 
     if side == 'right':
         h = sio.loadmat(fname)
@@ -105,7 +104,7 @@ def clean_data_pipeline(block, side = 'right'):
 
     # Save the spikes data in the same format as MATLAB
     spikes_data = np.array(spikes, dtype=object)
-    with h5py.File('spikes'+block+side+'.h5', 'w') as f:
+    with h5py.File('spikes'+block[0]+side+'.h5', 'w') as f:
         dset = f.create_dataset('spikes', data=spikes, dtype=h5py.special_dtype(vlen=np.dtype('float64')))
 
 # Press the green button in the gutter to run the script.
