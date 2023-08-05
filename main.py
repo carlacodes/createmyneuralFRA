@@ -68,6 +68,8 @@ def highpass_filter(file_path, file_name, tank, output_folder):
             traces_ss = [scipy.signal.filtfilt(b, a, dat[cc, :]) for cc in range(16)]
             traces.append(np.vstack(traces_ss))
 
+        #save as matlab file as well
+        sio.savemat(output_folder + f'HPf{block[0]}{i2 + 1}.mat', {'traces': traces})
         fname = f'HPf{block[0]}{i2 + 1}.h5'
         with h5py.File(output_folder + fname, 'w') as hf:
             hf.create_dataset('traces', data=traces, compression='gzip', compression_opts=9)
@@ -87,9 +89,11 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
     traces_hh = hh['traces']
 
     cleaned_data = []
+    print('Cleaning data...')
     for ii in range(len(traces_hh)):
+        print('at trial ' + str(ii))
         to_clean = np.vstack((traces_h[ii], traces_hh[ii]))
-        cleaned_data.append(clean_data(0, tdata=to_clean))
+        cleaned_data.append(clean_data('GetCleanedData', to_clean))
 
     fs = 24414.065
     nChan = 32
@@ -97,7 +101,7 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
 
     for cc in range(nChan):
         spikes_in_chan = []
-        for ss in range(1, 1097):
+        for ss in range(len(traces_hh)):
             t, wv = get_spike_times(cleaned_data[ss - 1][:, cc])
             spikes_in_chan.append(t)
             spikes.append(spikes_in_chan)
