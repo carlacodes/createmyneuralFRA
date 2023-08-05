@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from numba import jit, prange
+from scipy.linalg import svd
 
 # def pca(data):
 #     Mn = np.mean(data, axis=0)
@@ -26,8 +27,20 @@ from numba import jit, prange
 #     out = data - np.outer(art, v[:, 0]) - np.outer(art, v[:, 1])
 #     out = np.hstack((out, np.expand_dims(art, axis=1)))
 #     return out
+@jit(nopython=True)
+def custom_mean(data):
+    m, n = data.shape
+    means = np.zeros(n)
+    for i in range(n):
+        total = 0.0
+        for j in range(m):
+            total += data[j, i]
+        means[i] = total / m
+    return means
+
+@jit(nopython=True)
 def pca(data):
-    Mn = np.mean(data, axis=0)
+    Mn = custom_mean(data)
     data = data - Mn
 
     U, _, Vt = np.linalg.svd(data, full_matrices=False)
@@ -44,9 +57,13 @@ def pca(data):
     art /= data.shape[1]
 
     out = data - np.outer(art, v[:, 0]) - np.outer(art, v[:, 1])
-    out = np.hstack((out, np.expand_dims(art, axis=1)))
+
+    # Manual concatenation to add art as a new column to the 'out' array
+    art_column = np.expand_dims(art, axis=1)
+    out = np.concatenate((out, art_column), axis=1)
+
     return out
-@jit(nopython=True, parallel=True)
+@jit(nopython=True)
 def find_big_stuff(tdata, useSD, lowthresh, highthresh, xsd):
     m, n = tdata.shape
     spikelist = []
@@ -56,16 +73,16 @@ def find_big_stuff(tdata, useSD, lowthresh, highthresh, xsd):
         times_off = np.where(np.diff(tdata[:, i]) == -1)[0]
 
         if times_on.size > 0:
-            times = np.column_stack((times_on, times_off))
-            if times_on.size > times_off.size:
-                times[-1, 1] = tdata.shape[0] - 1
-            elif times_on.size < times_off.size:
-                times = np.row_stack(([0, times_on[0]], times))
+            times = np.empty((times_on.size, 2), dtype=np.int64)
+            for j in range(times_on.size):
+                start = times_on[j]
+                end = times_off[j] + 1
+                times[j, 0] = end
+                times[j, 1] = start
 
-            spikelist.extend(times[:, [1, i, 0]])
+            spikelist.extend(times[:, [0, i, 1]])
 
     return np.array(spikelist)
-
 @jit(nopython=True)
 def replace_big_stuff(tdata, biglist, replacearray, prepts, postpts):
     for i in range(biglist.shape[0]):
@@ -76,9 +93,8 @@ def replace_big_stuff(tdata, biglist, replacearray, prepts, postpts):
 
     return tdata
 
-def clean_data(action, tdata=None, ptspercut=24414.0625, useSD = True,  xsd=2.5, highthresh=100, lowthresh=-100, prepts=10, postpts=10):
+def clean_data(action, tdata=None, ptspercut=24414.0625, useSD=True, xsd=2.5, highthresh=100, lowthresh=-100, prepts=10, postpts=10):
     global biglist, replacearray, orig, showData, analogDisplayOffset, showWeights
-
 
     if tdata is None:
         showData = 0
@@ -159,6 +175,12 @@ def clean_data(action, tdata=None, ptspercut=24414.0625, useSD = True,  xsd=2.5,
 
     return out, None
 
+def plot_data(data):
+    fig, ax = plt.subplots()
+    for i in range(data.shape[1]):
+        ax.plot(data[:, i] - i * analogDisplayOffset)
+    plt.title('plot')
+    plt.show()
 def plot_data(data):
     fig, ax = plt.subplots()
     for i in range(data.shape[1]):
