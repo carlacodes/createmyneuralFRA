@@ -108,15 +108,22 @@ def find_big_stuff(tdata, useSD, lowthresh, highthresh, xsd):
 
     return np.array(spikelist)
 # @jit(nopython=True)
+# def replace_big_stuff(tdata, biglist, replacearray, prepts, postpts):
+#     for i in range(biglist.shape[0]):
+#         atime, ch, btime = biglist[i]
+#         a = min(atime - prepts, atime - 1) if atime - prepts > 0 else 0
+#         b = min(btime + postpts, tdata.shape[0]) if btime + postpts < tdata.shape[0] else tdata.shape[0] - 1
+#         tdata[atime - a:btime + b, ch] = replacearray[atime - a:btime + b, ch]
+#
+#     return tdata
 def replace_big_stuff(tdata, biglist, replacearray, prepts, postpts):
     for i in range(biglist.shape[0]):
         atime, ch, btime = biglist[i]
-        a = min(atime - prepts, atime - 1) if atime - prepts > 0 else 0
-        b = min(btime + postpts, tdata.shape[0]) if btime + postpts < tdata.shape[0] else tdata.shape[0] - 1
+        a = min(atime - prepts, atime)  # Updated a calculation
+        b = min(btime + postpts, tdata.shape[0] - 1)  # Updated b calculation
         tdata[atime - a:btime + b, ch] = replacearray[atime - a:btime + b, ch]
 
     return tdata
-
 def clean_data(action, tdata=None, ptspercut=24414.0625, useSD=True, xsd=2.5, highthresh=100, lowthresh=-100, prepts=10, postpts=10):
     global biglist, replacearray, orig, showData, analogDisplayOffset, showWeights
 
@@ -165,9 +172,9 @@ def clean_data(action, tdata=None, ptspercut=24414.0625, useSD=True, xsd=2.5, hi
 
             orig = tdata
             out, _, art = pca(NoSpikesData)  # Get art along with pcadata and v for NoSpikesData
-            pcadata_no_spikes = np.delete(out, [-2, -1], axis=1)  # Remove art column
+            # pcadata_no_spikes = np.delete(out, [-2, -1], axis=1)  # Remove art column
 
-            noiseEst = NoSpikesData - pcadata_no_spikes
+            noiseEst = NoSpikesData - out
 
             replacearray = noiseEst
 
@@ -190,7 +197,7 @@ def clean_data(action, tdata=None, ptspercut=24414.0625, useSD=True, xsd=2.5, hi
 
         showData = tdata
 
-        out = np.empty((0, n + 2))
+        out = np.empty((0, n))
 
         last = int(np.ceil(m / ptspercut))
 
