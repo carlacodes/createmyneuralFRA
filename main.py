@@ -6,7 +6,8 @@ import numpy as np
 import h5py
 import tdt
 import scipy
-
+from helpers.ellipfunc import ellip_filter_design
+from helpers.filterfuncs import filtfilt
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
@@ -43,7 +44,7 @@ def highpass_filter():
     f_order = 10
     filterWindow = [500, 3000]  # Filter cutoff frequencies
 
-    b, a = ellip(6, 0.1, 40, [300, 5000] / (fs / 2))
+    b, a = ellip_filter_design(6, 0.1, 40, [300, 5000] / (fs / 2))
 
     streams = ['BB_2', 'BB_3', 'BB_4', 'BB_5']
     output_folder = 'D:/Electrophysiological Data/F1815_Cruella/HP_Block1-10/'
