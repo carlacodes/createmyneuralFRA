@@ -1,8 +1,9 @@
 import numpy as np
-from scipy.signal import ellip, bilinear, zpk2ss, ss2zpk
+from scipy.signal import ellip, zpk2ss, ss2zpk
+from helpers.bilinearfunc import bilinear
 
 
-def ellip_filter_design(n, Rp, Rs, Wn, btype='low', analog=False):
+def ellip_filter_design(n, Rp, Rs, Wn, btype='low', fs= 24414.0625, analog=False):
     if analog:
         fs = 2.0
         u = 2.0 * fs * np.tan(np.pi * Wn / fs)

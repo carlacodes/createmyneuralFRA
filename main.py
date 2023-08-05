@@ -6,30 +6,33 @@ import numpy as np
 import h5py
 import tdt
 import scipy
-from helpers.ellipfunc import ellip_filter_design
-from helpers.filterfuncs import filtfilt
+from scipy.signal import ellip, bilinear, zpk2ss, ss2zpk
+# from helpers.ellipfunc import ellip_filter_design
+from helpers.filterfuncs import filtfilthd
 def print_hi(name):
     # Use a breakpoint in the code line below to debug your script.
     print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
 
-def highpass_filter():
+def highpass_filter(file_path, file_name, tank, output_folder):
 
 
     # Add paths and load the MATLAB .mat file
-    file_path = 'D:/Data/F1815_Cruella/weekfebruary282022/F1815_Cruella/'
-    file_name = 'Recording_Session_Date_01-Mar-2022_Time_15-56-19.mat'
+    # file_path = 'D:/Data/F1815_Cruella/weekfebruary282022/F1815_Cruella/'
+    # file_name = 'Recording_Session_Date_01-Mar-2022_Time_15-56-19.mat'
     mat_data = scipy.io.loadmat(file_path + file_name)
-
-    # Extract relevant data from the MATLAB .mat file
-    tank = 'D:/Electrophysiological Data/F1815_Cruella/'
-    block = 'Block1-10'
-
-    data = tdt.read_block(tank, block)
-    params = data.streams['info']
-    fStim = params['fs']
+    block = mat_data['recBlock']
+    #
+    # # Extract relevant data from the MATLAB .mat file
+    # tank = 'D:/Electrophysiological Data/F1815_Cruella/'
+    # block = 'Block1-10'
+    #concatenate tank and block
+    full_nd_path = tank + block[0]
+    data = tdt.read_block(full_nd_path)
+    # params = data.streams['info']
+    fStim = 24414.0625*2
     fs = 24414.0625
-    StartSamples = data.streams['StartSamples'].data.flatten()
+    StartSamples = mat_data['StartSamples'].flatten()
     sTimes = StartSamples / fStim  # seconds
 
     # Define epoch timings and filter parameters
@@ -43,18 +46,22 @@ def highpass_filter():
     # Define filter
     f_order = 10
     filterWindow = [500, 3000]  # Filter cutoff frequencies
+    freq_range = np.array([300, 5000]) / (fs / 2)
 
-    b, a = ellip_filter_design(6, 0.1, 40, [300, 5000] / (fs / 2))
+    # b, a = ellip(6, 0.1, 40, [300, 5000] / (fs / 2))
+    Wp = np.array([300, 5000]) / (fs / 2)
+
+    # Design the bandpass filter using ellip
+    b, a = ellip(6, 0.1, 40, Wp, btype='band')
 
     streams = ['BB_2', 'BB_3', 'BB_4', 'BB_5']
-    output_folder = 'D:/Electrophysiological Data/F1815_Cruella/HP_Block1-10/'
 
     for i2 in range(4):
         traces = []
-        for ss in range(1096 - 1):
+        for ss in range(sT.shape[0]-1):
             # Epoch and filter
             dat = data.streams[streams[i2]].data[:, sT[ss, 0]:sT[ss, 1]]
-            traces_ss = [filtfilt(b, a, dat[cc, :]) for cc in range(16)]
+            traces_ss = [scipy.signal.filtfilt(b, a, dat[cc, :]) for cc in range(16)]
             traces.append(np.vstack(traces_ss))
 
         fname = f'HPfBlock1-10{i2 + 1}.h5'
@@ -64,6 +71,11 @@ def highpass_filter():
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    file_path = 'D:\Data\F1815_Cruella\FRAS/'
+    file_name = 'Recording_Session_Date_25-Jan-2023_Time_12-26-44.mat'
+    tank = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS/'
+    output_folder = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS\output_filtered'
+
+    highpass_filter(file_path, file_name, tank, output_folder)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
