@@ -7,8 +7,8 @@ def get_spike_times(x):
     interpFactor = 4
 
     interpInt = wInt / interpFactor
-    window = np.arange(-15, 17, wInt)
-    interpWind = np.arange(-15, 17, interpInt)
+    window = np.arange(-15, 18, wInt)
+    interpWind = np.arange(-15, 18, interpInt)
 
     nW = len(window) + 1
     alignmentZero = np.where(window == 0)[0][0]
