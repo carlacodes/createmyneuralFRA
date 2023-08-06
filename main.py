@@ -122,8 +122,11 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
     if spikes_data.size == 0:
         print('No spikes found!')
     print('saving spikes' + block[0] + side + '.h5')
-    with h5py.File('spikes'+block[0]+side+'.h5', 'w') as f:
-        dset = f.create_dataset('spikes', data=spikes, dtype=h5py.special_dtype(vlen=np.dtype('float64')))
+    #save to output folder
+    with h5py.File(output_folder + 'spikes' + block[0] + side + '.h5', 'w') as f:
+        dset = f.create_dataset('spikes', data=spikes_data, dtype=h5py.special_dtype(vlen=np.dtype('float64')))
+    # with h5py.File('spikes'+block[0]+side+'.h5', 'w') as f:
+    #     dset = f.create_dataset('spikes', data=spikes, dtype=h5py.special_dtype(vlen=np.dtype('float64')))
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
