@@ -50,6 +50,8 @@ def get_spike_times(x):
 
     # Get interim waveforms
     wvIdx = crossThreshold[:, np.newaxis] + window[np.newaxis, :]
+    #convert wvIdx to int
+    wvIdx = wvIdx.astype(int)
     wv = x[wvIdx]
 
     # Move to next trial if no waveforms are valid
