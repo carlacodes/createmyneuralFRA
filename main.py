@@ -81,10 +81,17 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
     fname2 = f'{output_folder}HPf{block[0]}2.h5'
 
     if side == 'right':
-        h = h5py.File(fname, 'r')
-        hh = h5py.File(fname2, 'r')
+        fname = f'{output_folder}HPf{block[0]}1.h5'
+        fname2 = f'{output_folder}HPf{block[0]}2.h5'
+
+    elif side == 'left':
+        fname = f'{output_folder}HPf{block[0]}3.h5'
+        fname2 = f'{output_folder}HPf{block[0]}4.h5'
 
     # Access the traces from the loaded data
+    h = h5py.File(fname2, 'r')
+    hh = h5py.File(fname, 'r')
+
     traces_h = h['traces']
     traces_hh = hh['traces']
 
@@ -111,6 +118,7 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
 
     # Save the spikes data in the same format as MATLAB
     spikes_data = np.array(spikes, dtype=object)
+    print('saving spikes' + block[0] + side + '.h5')
     with h5py.File('spikes'+block[0]+side+'.h5', 'w') as f:
         dset = f.create_dataset('spikes', data=spikes, dtype=h5py.special_dtype(vlen=np.dtype('float64')))
 
@@ -123,6 +131,6 @@ if __name__ == '__main__':
 
     # block = highpass_filter(file_path, file_name, tank, output_folder)
     block = ['Block1-3']
-    clean_data_pipeline(output_folder, block, side = 'right')
+    clean_data_pipeline(output_folder, block, side = 'left')
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
