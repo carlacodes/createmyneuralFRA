@@ -5,6 +5,7 @@
 import numpy as np
 import h5py
 import tdt
+import pickle
 import pandas as pd
 from helpers.cleandata2 import clean_data
 import scipy.io as sio
@@ -133,9 +134,12 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
     if spikes_data.size == 0:
         print('No spikes found!')
     print('saving spikes' + block[0] + side + '.h5')
-    #save to output folder
-    with h5py.File(output_folder + 'spikes' + block[0] + side + '.h5', 'w') as f:
-        dset = f.create_dataset('spikes', data=spikes_data, dtype=h5py.special_dtype(vlen=np.dtype('float64')))
+    #save as pickle file
+    with open(output_folder + 'spikes' + block[0] + side + '.pkl', 'wb') as f:
+        pickle.dump(spikes_data, f)
+    # #save to output folder
+    # with h5py.File(output_folder + 'spikes' + block[0] + side + '.h5', 'w') as f:
+    #     dset = f.create_dataset('spikes', data=spikes_data, dtype=h5py.special_dtype(vlen=np.dtype('float64')))
     # with h5py.File('spikes'+block[0]+side+'.h5', 'w') as f:
     #     dset = f.create_dataset('spikes', data=spikes, dtype=h5py.special_dtype(vlen=np.dtype('float64')))
 
@@ -159,9 +163,9 @@ if __name__ == '__main__':
     for file in files:
         mat_data = scipy.io.loadmat(file_path + file_name)
         block = mat_data['recBlock']
-        # clean_data_pipeline(output_folder, block, side = 'right')
+        clean_data_pipeline(output_folder, block, side = 'right')
 
-        run_fra('right', file_path, file_name, output_folder)
+        # run_fra('right', file_path, file_name, output_folder)
 
 
     # clean_data_pipeline(output_folder, block, side = 'left')
