@@ -9,6 +9,7 @@ import pandas as pd
 from helpers.cleandata2 import clean_data
 import scipy.io as sio
 import scipy
+from helpers.plotfrafromspikes import run_fra
 from helpers.getspiketimes import get_spike_times
 from scipy.signal import ellip, bilinear, zpk2ss, ss2zpk
 # from helpers.ellipfunc import ellip_filter_design
@@ -157,8 +158,10 @@ if __name__ == '__main__':
     # block = ['Block1-3']
     for file in files:
         mat_data = scipy.io.loadmat(file_path + file_name)
-        block = mat_data['recBlock'][0]
-        clean_data_pipeline(output_folder, block, side = 'right')
+        block = mat_data['recBlock']
+        # clean_data_pipeline(output_folder, block, side = 'right')
+
+        run_fra('right', file_path, file_name, output_folder)
 
 
     # clean_data_pipeline(output_folder, block, side = 'left')

@@ -17,7 +17,7 @@ def smooth_fra(z):
     z2 = np.convolve(p.flatten(), s.flatten(), 'valid').reshape((m, n))
     return z2
 
-def FRAbounds(file, f32file):
+def genFRAbounds(file, f32file):
     fsz = 10
     if f32file == 1:
         r = spikerate(file, 1, 200, 1, 2)
