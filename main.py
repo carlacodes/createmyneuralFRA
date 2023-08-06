@@ -32,8 +32,13 @@ def highpass_filter(file_path, file_name, tank, output_folder):
     # block = 'Block1-10'
     #concatenate tank and block
     full_nd_path = tank + block[0]
-    data = tdt.read_block(full_nd_path)
-    # params = data.streams['info']
+    try:
+        data = tdt.read_block(full_nd_path)
+    except:
+        print('error reading block')
+        print(full_nd_path)
+        return block
+        # params = data.streams['info']
     fStim = 24414.0625*2
     fs = 24414.0625
     StartSamples = mat_data['StartSamples'].flatten()
@@ -135,8 +140,15 @@ if __name__ == '__main__':
     tank = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS/'
     output_folder = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS\output_filtered/'
 
+    #run through the high_pass filter for a whole directory
+    file_path = 'D:\Data\F1815_Cruella\FRAS/'
+    #get a lsit of all the files in the directory
+    import os
+    files = os.listdir(file_path)
+    for file in files:
+        highpass_filter(file_path, file, tank, output_folder)
     # block = highpass_filter(file_path, file_name, tank, output_folder)
-    block = ['Block1-3']
-    clean_data_pipeline(output_folder, block, side = 'left')
+    # block = ['Block1-3']
+    # clean_data_pipeline(output_folder, block, side = 'left')
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
