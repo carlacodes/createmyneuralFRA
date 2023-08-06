@@ -94,8 +94,13 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
         fname2 = f'{output_folder}HPf{block[0]}4.h5'
 
     # Access the traces from the loaded data
-    h = h5py.File(fname2, 'r')
-    hh = h5py.File(fname, 'r')
+    try:
+        h = h5py.File(fname2, 'r')
+        hh = h5py.File(fname, 'r')
+    except:
+        print('error reading file')
+        print(fname)
+        return block
 
     traces_h = h['traces']
     traces_hh = hh['traces']
@@ -145,10 +150,17 @@ if __name__ == '__main__':
     #get a lsit of all the files in the directory
     import os
     files = os.listdir(file_path)
-    for file in files:
-        highpass_filter(file_path, file, tank, output_folder)
+
+    # for file in files:
+    #     highpass_filter(file_path, file, tank, output_folder)
     # block = highpass_filter(file_path, file_name, tank, output_folder)
     # block = ['Block1-3']
+    for file in files:
+        mat_data = scipy.io.loadmat(file_path + file_name)
+        block = mat_data['recBlock'][0]
+        clean_data_pipeline(output_folder, block, side = 'right')
+
+
     # clean_data_pipeline(output_folder, block, side = 'left')
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
