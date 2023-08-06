@@ -96,10 +96,26 @@ def run_fra(side, file_path, file_name, output_folder):
     # plt.show()
     # ... (Previous code remains the same)
 
+    # Create a list to store valid contour plot axes\
+    # ... (Previous code remains the same)
+
+    def plot_contour(ax, avgspikes, freqs, lvls, data):
+        # Create 2D grids for contourf
+        avgspikes_grid, freqs_grid = np.meshgrid(avgspikes, freqs)
+
+        # Check if the grids are 2D
+        if avgspikes_grid.ndim != 2 or freqs_grid.ndim != 2:
+            return False
+
+        # Plot the contour
+        contour = ax.contourf(avgspikes_grid, freqs_grid, lvls, data, cmap='viridis')
+        return True
+
     # Create a list to store valid contour plot axes
     valid_axes = []
 
     for i4 in range(32):
+        print('at line 118')
         i3 = reordermat[i4]
         i2 = np.where(WARPmat[:, 1] == i3)[0][0]
         i22 = WARPmat[i2, 0]
@@ -117,27 +133,20 @@ def run_fra(side, file_path, file_name, output_folder):
 
         # Reshape data to have the same number of rows as avgspikes_grid and freqs_grid
         data_reshaped = data[:len(avgspikes_reshaped), i3].reshape((-1, 1))
+        print(f"Shape of avgspikes_reshaped: {avgspikes_reshaped.shape}")
+        print(f"Shape of data_reshaped: {data_reshaped.shape}")
 
-        # Create 2D grids for contourf
-        avgspikes_grid, freqs_grid = np.meshgrid(avgspikes_reshaped, freqs)
-
-        # Check if the grids are 2D
-        if avgspikes_grid.ndim != 2 or freqs_grid.ndim != 2:
-            continue
-
-        # Plot the contour
+        # Plot the contour and add the valid axes to the list
         ax = axs[i4 // 4, i4 % 4]
-        contour = ax.contourf(avgspikes_grid, freqs_grid, lvls, data_reshaped, cmap='viridis')
-        ax.set_title(f'TDT = {i22}, WARP = {i3}')
-        ax.set_xlabel('Avg Spikes')
-        ax.set_ylabel('Frequency (Hz)')
-
-        # Store the valid axis for later use
-        valid_axes.append(ax)
+        if plot_contour(ax, avgspikes_reshaped, freqs, lvls, data_reshaped):
+            ax.set_title(f'TDT = {i22}, WARP = {i3}')
+            ax.set_xlabel('Avg Spikes')
+            ax.set_ylabel('Frequency (Hz)')
+            valid_axes.append(ax)
 
     # Create color bar if any valid plot is created
     if valid_axes:
-        plt.colorbar(contour, ax=valid_axes, location='right', pad=0.01, aspect=30)
+        plt.colorbar(axs[7, 3].images[0], ax=valid_axes, location='right', pad=0.01, aspect=30)
 
     plt.suptitle('F1815 Cruella FRA plot (March 01, 2022, Block1-10), Right Hemisphere', fontsize=16)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
@@ -145,5 +154,7 @@ def run_fra(side, file_path, file_name, output_folder):
     plt.savefig('FRA_F1815CruellaBlock1-10.png', dpi=300)
     plt.savefig('FRA_F1815CruellaBlock1-10.svg')
     plt.show()
+
+
 
 
