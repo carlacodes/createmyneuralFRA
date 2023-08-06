@@ -65,30 +65,85 @@ def run_fra(side, file_path, file_name, output_folder):
                                              [17, 16, 1, 0]])
 
     reordermat = []
+    flattenedorder = OrderofWARPeLCTRODESRCruella.flatten()
     for itest in range(32):
-        id = OrderofWARPeLCTRODESRCruella[itest, 0]
-        selectrow, selectcol = np.where(WARPmat[:, 0] == id)
+        id = flattenedorder[itest]
+        selectrow = np.where(WARPmat[:, 0] == id)
+        selectrow = int(selectrow[0])
         reorder = TDTorder[selectrow]
         reordermat.append(reorder)
     reordermat = np.array(reordermat).reshape((8, 4)).T.flatten()
     OrderofElectrodesRWARP = np.array([17, 19, 21, 23, 24, 26, 28, 30, 16, 18, 20, 22, 25, 27, 29, 31, 1, 3, 5, 7, 8, 10, 12, 14, 0, 2, 4, 6, 9, 11, 13, 15])
     OrderofElectrodesLWARP = np.array([30, 28, 26, 24, 23, 21, 19, 17, 31, 29, 27, 25, 22, 20, 18, 16, 14, 12, 10, 8, 7, 5, 3, 1, 15, 13, 11, 9, 6, 4, 2, 0])
 
+    # for i4 in range(32):
+    #     i3 = reordermat[i4]
+    #     i2 = np.where(WARPmat[:, 1] == i3)[0][0]
+    #     i22 = WARPmat[i2, 0]
+    #
+    #     axs[i4 // 4, i4 % 4].contourf(avgspikes[:, i3].reshape((-1, 1)), freqs, lvls, data[:, i3], cmap='viridis')
+    #     axs[i4 // 4, i4 % 4].set_title(f'TDT = {i22}, WARP = {i3}')
+    #     axs[i4 // 4, i4 % 4].set_xlabel('Avg Spikes')
+    #     axs[i4 // 4, i4 % 4].set_ylabel('Frequency (Hz)')
+    #
+    # plt.suptitle('F1815 Cruella FRA plot (March 01, 2022, Block1-10), Right Hemisphere', fontsize=16)
+    # plt.colorbar(axs[7, 3].images[0], ax=axs[:, -1], location='right', pad=0.01, aspect=30)
+    # plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+    #
+    # plt.savefig('FRA_F1815CruellaBlock1-10.png', dpi=300)
+    # plt.savefig('FRA_F1815CruellaBlock1-10.svg')
+    # plt.savefig('FRA_F1815CruellaBlock1-10.fig')
+    # plt.show()
+    # ... (Previous code remains the same)
+
+    # Create a list to store valid contour plot axes
+    valid_axes = []
+
     for i4 in range(32):
         i3 = reordermat[i4]
         i2 = np.where(WARPmat[:, 1] == i3)[0][0]
         i22 = WARPmat[i2, 0]
 
-        axs[i4 // 4, i4 % 4].contourf(avgspikes[:, i3].reshape((-1, 1)), freqs, lvls, data[:, i3], cmap='viridis')
-        axs[i4 // 4, i4 % 4].set_title(f'TDT = {i22}, WARP = {i3}')
-        axs[i4 // 4, i4 % 4].set_xlabel('Avg Spikes')
-        axs[i4 // 4, i4 % 4].set_ylabel('Frequency (Hz)')
+        # Check if i3 is within the valid range
+        if i3 >= len(avgspikes[0]) or i3 >= len(data[0]):
+            continue
+
+        # Reshape avgspikes to have a consistent shape
+        avgspikes_reshaped = avgspikes[:, i3].reshape((-1, 1))
+
+        # Check if data has enough rows for reshaping
+        if len(data) < len(avgspikes_reshaped):
+            continue
+
+        # Reshape data to have the same number of rows as avgspikes_grid and freqs_grid
+        data_reshaped = data[:len(avgspikes_reshaped), i3].reshape((-1, 1))
+
+        # Create 2D grids for contourf
+        avgspikes_grid, freqs_grid = np.meshgrid(avgspikes_reshaped, freqs)
+
+        # Check if the grids are 2D
+        if avgspikes_grid.ndim != 2 or freqs_grid.ndim != 2:
+            continue
+
+        # Plot the contour
+        ax = axs[i4 // 4, i4 % 4]
+        contour = ax.contourf(avgspikes_grid, freqs_grid, lvls, data_reshaped, cmap='viridis')
+        ax.set_title(f'TDT = {i22}, WARP = {i3}')
+        ax.set_xlabel('Avg Spikes')
+        ax.set_ylabel('Frequency (Hz)')
+
+        # Store the valid axis for later use
+        valid_axes.append(ax)
+
+    # Create color bar if any valid plot is created
+    if valid_axes:
+        plt.colorbar(contour, ax=valid_axes, location='right', pad=0.01, aspect=30)
 
     plt.suptitle('F1815 Cruella FRA plot (March 01, 2022, Block1-10), Right Hemisphere', fontsize=16)
-    plt.colorbar(axs[7, 3].images[0], ax=axs[:, -1], location='right', pad=0.01, aspect=30)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
 
     plt.savefig('FRA_F1815CruellaBlock1-10.png', dpi=300)
     plt.savefig('FRA_F1815CruellaBlock1-10.svg')
-    plt.savefig('FRA_F1815CruellaBlock1-10.fig')
     plt.show()
+
+

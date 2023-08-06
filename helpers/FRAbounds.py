@@ -1,19 +1,34 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+#
+# def smooth_fra(z):
+#     # Do some smoothing
+#     s = np.array([[0.25, 0.5, 0.25],
+#                   [0.5, 1, 0.5],
+#                   [0.25, 0.5, 0.25]])
+#     s = s / np.sum(s)  # normalize the window
+#     m, n = z.shape
+#     p = np.zeros((m + 2, n + 2))
+#     p[1:m + 1, 1:n + 1] = z
+#     p[0, :] = p[1, :]
+#     p[m + 1, :] = p[m, :]
+#     p[:, 0] = p[:, 1]
+#     p[:, n + 1] = p[:, n]
+#     z2 = np.convolve(p.flatten(), s.flatten(), 'valid').reshape((m, n))
+#     return z2
 def smooth_fra(z):
-    # Do some smoothing
+    # Create a sliding window (kernel)
     s = np.array([[0.25, 0.5, 0.25],
                   [0.5, 1, 0.5],
                   [0.25, 0.5, 0.25]])
-    s = s / np.sum(s)  # normalize the window
+
+    s = s / s.sum()  # Normalize the kernel
+
     m, n = z.shape
     p = np.zeros((m + 2, n + 2))
-    p[1:m + 1, 1:n + 1] = z
-    p[0, :] = p[1, :]
-    p[m + 1, :] = p[m, :]
-    p[:, 0] = p[:, 1]
-    p[:, n + 1] = p[:, n]
+    p[1:m + 1, 1:n + 1] = z  # Zero-padding to maintain the original size
+
+    # Perform convolution and reshape the result
     z2 = np.convolve(p.flatten(), s.flatten(), 'valid').reshape((m, n))
     return z2
 
@@ -39,7 +54,7 @@ def genFRAbounds(file, f32file):
             spikes[ll, ff] = np.mean(r[(r[:, 1] == freqs[ff]) & (r[:, 2] == levels[ll]), 0])
 
     # Apply smoothing to the FRA
-    spikes, X, X2 = smooth_fra(spikes)
+    # spikes, X, X2 = smooth_fra(spikes)
 
     # Calculate the mean spontaneous rate
     srate = np.mean(spikes[0, :]) + (1 / 5) * np.max(spikes)
