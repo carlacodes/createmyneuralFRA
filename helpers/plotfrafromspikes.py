@@ -3,7 +3,7 @@ import os
 import numpy as np
 import scipy.io as sio
 import matplotlib.pyplot as plt
-from FRAbounds import genFRAbounds
+from helpers.FRAbounds import genFRAbounds
 import scipy
 import h5py
 
@@ -13,7 +13,7 @@ import h5py
 def run_fra(side, file_path, file_name, output_folder):
     data = scipy.io.loadmat(file_path + file_name)
     block = data['recBlock']
-    data = sio.loadmat('Recording_Session_Date_01-Mar-2022_Time_15-56-19.mat')
+
     freqs = data['currTrialDets']['Freq'][0][0].flatten()
     lvls = data['currTrialDets']['Lvl'][0][0].flatten()
     lvls = 80 - lvls
