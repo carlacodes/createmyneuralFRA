@@ -3,12 +3,18 @@ from scipy import interpolate
 
 def get_spike_times(x):
     # Parameters
-    wInt = 1
+    # wInt = 1
+    # interpFactor = 4
+    #
+    # interpInt = wInt / interpFactor
+    # window = np.arange(-15, 18, wInt)
+    # interpWind = np.arange(-15, 18, interpInt)
+    wInt = 1.0  # Use floating-point number for wInt
     interpFactor = 4
 
     interpInt = wInt / interpFactor
-    window = np.arange(-15, 18, wInt)
-    interpWind = np.arange(-15, 18, interpInt)
+    window = np.linspace(-15, 17, int((17 - (-15)) / wInt) + 1)  # Use np.linspace for strictly increasing array
+    interpWind = np.linspace(-15, 17, int((17 - (-15)) / interpInt) + 1)  # Use np.linspace for interpWind
 
     nW = len(window) + 1
     alignmentZero = np.where(window == 0)[0][0]
