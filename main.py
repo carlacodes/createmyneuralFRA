@@ -118,6 +118,9 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
 
     # Save the spikes data in the same format as MATLAB
     spikes_data = np.array(spikes, dtype=object)
+    #check spikes is not empty
+    if spikes_data.size == 0:
+        print('No spikes found!')
     print('saving spikes' + block[0] + side + '.h5')
     with h5py.File('spikes'+block[0]+side+'.h5', 'w') as f:
         dset = f.create_dataset('spikes', data=spikes, dtype=h5py.special_dtype(vlen=np.dtype('float64')))
