@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from helpers.FRAbounds import genFRAbounds
 import scipy
 import h5py
+import pickle
 
 
 
@@ -17,11 +18,13 @@ def run_fra(side, file_path, file_name, output_folder):
     freqs = data['currTrialDets']['Freq'][0][0].flatten()
     lvls = data['currTrialDets']['Lvl'][0][0].flatten()
     lvls = 80 - lvls
-    fname = f'{output_folder}spikes{block[0]}{side}.h5'
+    fname = f'{output_folder}spikes{block[0]}{side}.pkl'
+    #read the pkl file
+    with open(fname, 'rb') as f:
+        spikes_data = pickle.load(f)
+    # spikes_data = h5py.File(fname, 'r')
 
-    spikes_data = h5py.File(fname, 'r')
-
-    spikes = spikes_data['spikes']
+    spikes = spikes_data
 
 
 
@@ -33,7 +36,14 @@ def run_fra(side, file_path, file_name, output_folder):
             avgspikes[i][i2] = len(spikesintrial)  # / 1.2
 
     f32file = 0
-    bounds, bf, Th, data, spikes = genFRAbounds(avgspikes, freqs, lvls, f32file)
+    top_row = avgspikes[0, :]
+    #make top_row, freqs and levels a column in an array
+    fra_input = np.empty((len(top_row), 3))
+    fra_input[:, 0] = top_row
+    fra_input[:, 1] = freqs[:776]
+    fra_input[:, 2] = lvls[:776]
+
+    bounds, bf, Th, data, spikes = genFRAbounds(fra_input, f32file)
 
     # Plot the results
     os.makedirs('D:/Data/PSTHresults/Cruella/Block1-10', exist_ok=True)
