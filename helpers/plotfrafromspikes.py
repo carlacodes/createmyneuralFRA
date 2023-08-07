@@ -3,7 +3,7 @@ import os
 import numpy as np
 import scipy.io as sio
 import matplotlib.pyplot as plt
-from helpers.FRAbounds import genFRAbounds
+from helpers.FRAbounds2 import FRAbounds
 import scipy
 import h5py
 import pickle
@@ -59,7 +59,17 @@ def run_fra(side, file_path, file_name, output_folder):
     # fra_input[:, 1] = freqs[:776]
     # fra_input[:, 2] = lvls[:776]
     #
-    bounds, bf, Th, data, spikes = genFRAbounds(fra_input, f32file)
+    f32file = 0
+    for i in range(0, 32):
+        spike_counts[i] = sumspikes[i, :]
+        FRAinput = np.empty((len(spike_counts[i]), 3))
+        FRAinput[:, 0] = spike_counts[i]
+        FRAinput[:, 1] = freqs[:len(spike_counts[i])]
+        FRAinput[:, 2] = lvls[:len(spike_counts[i])]
+        #transpose the matrix
+        # FRAinput = FRAinput.T
+        bounds, bf, Th, data, spikes = FRAbounds(FRAinput, f32file)
+    return block
     #
 
 
