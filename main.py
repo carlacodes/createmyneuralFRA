@@ -172,6 +172,8 @@ if __name__ == '__main__':
         # clean_data_pipeline(output_folder, block, side = 'right')
 
         run_fra('right', file_path, file, output_folder)
+        run_fra('left', file_path, file, output_folder)
+
 
 
     # clean_data_pipeline(output_folder, block, side = 'left')
