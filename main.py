@@ -169,10 +169,10 @@ if __name__ == '__main__':
         mat_data = scipy.io.loadmat(file_path + file)
         block = mat_data['recBlock']
         print(block)
-        # clean_data_pipeline(output_folder, block, side = 'right')
+        clean_data_pipeline(output_folder, block, side = 'left')
 
         run_fra('right', file_path, file, output_folder)
-        run_fra('left', file_path, file, output_folder)
+        # run_fra('left', file_path, file, output_folder)
 
 
 
