@@ -1,22 +1,24 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.ndimage import gaussian_filter
 
 def FRAbounds(file, f32file):
-    def smoothFRA(z):
-        s = np.array([[0.25, 0.5, 0.25],
-                      [0.5,  1,   0.5],
-                      [0.25, 0.5, 0.25]])
-        s = s / np.sum(s)
-        m, n = z.shape
-        p = np.zeros((m + 2, n + 2))
-        p[1:m + 1, 1:n + 1] = z
-        p[0, :] = p[1, :]
-        p[m + 1, :] = p[m, :]
-        p[:, 0] = p[:, 1]
-        p[:, n + 1] = p[:, n]
-        z2 = np.convolve(np.convolve(p, s, mode='same'), s.T, mode='same')[1:m + 1, 1:n + 1]
-        return z2
-
+    # def smoothFRA(z):
+    #     s = np.array([[0.25, 0.5, 0.25],
+    #                   [0.5,  1,   0.5],
+    #                   [0.25, 0.5, 0.25]])
+    #     s = s / np.sum(s)
+    #     m, n = z.shape
+    #     p = np.zeros((m + 2, n + 2))
+    #     p[1:m + 1, 1:n + 1] = z
+    #     p[0, :] = p[1, :]
+    #     p[m + 1, :] = p[m, :]
+    #     p[:, 0] = p[:, 1]
+    #     p[:, n + 1] = p[:, n]
+    #     z2 = np.convolve(np.convolve(p, s, mode='same'), s.T, mode='same')[1:m + 1, 1:n + 1]
+    #     return z2
+    def smoothFRA(z, sigma=1):
+        return gaussian_filter(z, sigma=sigma)
     def smooth_fra_cg(z):
         X, Y = np.meshgrid(np.arange(z.shape[1]), np.arange(z.shape[0]))
         X2, Y2 = np.meshgrid(np.arange(0, z.shape[1], 0.01), np.arange(0, z.shape[0], 0.01))
@@ -45,7 +47,7 @@ def FRAbounds(file, f32file):
 
     # Smooth the FRA
     # spikes, X, X2 = smooth_fra_cg(spikes)
-    # spikes = smoothFRA(spikes)
+    spikes = smoothFRA(spikes)
 
     srate = np.mean(spikes.flatten()) + (1 / 5) * np.max(spikes)
 
