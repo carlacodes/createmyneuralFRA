@@ -117,16 +117,21 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
     fs = 24414.065
     nChan = 32
     spikes = []
-
+    # spikes = np.empty((nChan, len(traces_hh)))
+    #spikes needs to be a nChan by nTrials cell array
+    # spikes= np.empty((nChan, len(traces_hh)))
     for cc in range(nChan):
         spikes_in_chan = []
         for ss in range(len(traces_hh)):
             # test = cleaned_data[ss]
             # test2=test[0][:,cc]
+            # print('getting spike times for trial ' + str(ss) + ' channel ' + str(cc) )
             t, wv = get_spike_times(cleaned_data[ss][0][cc,:])
             spikes_in_chan.append(t)
-            spikes.append(spikes_in_chan)
 
+
+        # spikes[cc,:] = spikes_in_chan
+        spikes.append(spikes_in_chan)
 
     # Save the spikes data in the same format as MATLAB
     spikes_data = np.array(spikes, dtype=object)
@@ -163,9 +168,10 @@ if __name__ == '__main__':
     for file in files:
         mat_data = scipy.io.loadmat(file_path + file)
         block = mat_data['recBlock']
+        print(block)
         # clean_data_pipeline(output_folder, block, side = 'right')
 
-        run_fra('right', file_path, file_name, output_folder)
+        run_fra('right', file_path, file, output_folder)
 
 
     # clean_data_pipeline(output_folder, block, side = 'left')
