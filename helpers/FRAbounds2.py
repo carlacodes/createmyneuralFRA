@@ -47,13 +47,13 @@ def FRAbounds(file, f32file):
     # spikes, X, X2 = smooth_fra_cg(spikes)
     # spikes = smoothFRA(spikes)
 
-    srate = np.mean(spikes[0]) + (1 / 5) * np.max(spikes)
+    srate = np.mean(spikes.flatten()) + (1 / 5) * np.max(spikes)
 
     # Determine boundaries of FRA
     bounds = np.zeros(nfreqs)
 
     for ii in range(nfreqs):
-        for jj in range(nlevels):
+        for jj in range(nlevels-1):
             if spikes[jj, ii] < srate and jj < nlevels:
                 pass
             elif spikes[jj, ii] >= srate and jj == 0:
