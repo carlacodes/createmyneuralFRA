@@ -60,8 +60,6 @@ def run_fra(side, file_path, file_name, output_folder):
     # fra_input[:, 2] = lvls[:776]
     #
     f32file = 0
-    plt.figure(figsize=(20, 10))
-
     for i in range(0, 32):
         spike_counts[i] = sumspikes[i, :]
         FRAinput = np.empty((len(spike_counts[i]), 3))
@@ -78,16 +76,24 @@ def run_fra(side, file_path, file_name, output_folder):
         # plt.clim(0, 10)
         if i == 24:
             plt.xticks(np.linspace(0, spikes.shape[1] - 1, num=6),
-                       np.round(np.exp(np.linspace(np.log(min(freqs)), np.log(max(freqs)), num=6)) / 1000, 2))
+                       np.round(np.exp(np.linspace(np.log(min(freqs)), np.log(max(freqs)), num=6)) / 1000, 2), fontsize=8)
             plt.yticks(np.linspace(0, spikes.shape[0] - 1, num=6),
-                       np.round(np.linspace(min(levels), max(levels), num=6), 2))
+                       np.round(np.linspace(min(levels), max(levels), num=6), 2), fontsize=8)
             plt.xlabel('Freq (kHz)', fontsize=10)
             plt.ylabel('Level (dB)', fontsize=10)
 
         plt.colorbar()
+        plt.title(f'Channel {i + 1}', fontsize=10)
+
         #have one giant colorbar
         # if i == 31:
         #     plt.colorbar(label='Spikes per presentation')
+
+    #increase the space between the plots
+    #increase the size of the figure
+    plt.gcf().set_size_inches(15, 10)
+    plt.subplots_adjust(wspace=0.5, hspace=0.5)
+
     plt.show()
 
     return block
