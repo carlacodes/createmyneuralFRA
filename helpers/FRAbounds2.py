@@ -49,8 +49,8 @@ def FRAbounds(file, f32file):
     # spikes, X, X2 = smooth_fra_cg(spikes)
     spikes = smoothFRA(spikes)
 
-    srate = np.mean(spikes.flatten()) + (1 / 5) * np.max(spikes)
-
+    # srate = np.mean(spikes.flatten()) + (1 / 5) * np.max(spikes)
+    srate = np.min(spikes.flatten())
     # Determine boundaries of FRA
     bounds = np.zeros(nfreqs)
 
@@ -88,18 +88,19 @@ def FRAbounds(file, f32file):
     data = spikes
 
     # Plot the FRA
-    plt.imshow(spikes, origin='lower', aspect='auto', cmap='hot')
-    plt.xticks(np.linspace(0, spikes.shape[1] - 1, num=6), np.round(np.exp(np.linspace(np.log(min(freqs)), np.log(max(freqs)), num=6)) / 1000, 2))
-    plt.yticks(np.linspace(0, spikes.shape[0] - 1, num=6), np.round(np.linspace(min(levels), max(levels), num=6), 2))
-    plt.xlabel('Freq (kHz)')
-    plt.ylabel('Level (dB)')
-    plt.colorbar(label='Spikes per presentation')
+    # plt.imshow(spikes, origin='lower', aspect='auto', cmap='hot')
+    # plt.xticks(np.linspace(0, spikes.shape[1] - 1, num=6), np.round(np.exp(np.linspace(np.log(min(freqs)), np.log(max(freqs)), num=6)) / 1000, 2))
+    # plt.yticks(np.linspace(0, spikes.shape[0] - 1, num=6), np.round(np.linspace(min(levels), max(levels), num=6), 2))
+    # plt.xlabel('Freq (kHz)')
+    # plt.ylabel('Level (dB)')
+    # plt.colorbar(label='Spikes per presentation')
+    #
+    # # Plot boundary line
+    # # y_axis = np.linspace(0, spikes.shape[0] - 1, num=6)
+    # plt.plot(bounds[::-1], color='white', linewidth=2)
+    # plt.show()
 
-    # Plot boundary line
-    plt.plot(bounds, color='white', linewidth=2)
-    plt.show()
-
-    return bounds, bf, Th, data, spikes
+    return bounds, bf, Th, data, spikes, levels
 
 # Usage example:
 # bounds, bf, Th, data, spikes = FRAbounds(file, f32file)

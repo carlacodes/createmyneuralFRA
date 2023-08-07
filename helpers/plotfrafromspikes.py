@@ -60,6 +60,8 @@ def run_fra(side, file_path, file_name, output_folder):
     # fra_input[:, 2] = lvls[:776]
     #
     f32file = 0
+    plt.figure(figsize=(20, 10))
+
     for i in range(0, 32):
         spike_counts[i] = sumspikes[i, :]
         FRAinput = np.empty((len(spike_counts[i]), 3))
@@ -68,7 +70,26 @@ def run_fra(side, file_path, file_name, output_folder):
         FRAinput[:, 2] = lvls[:len(spike_counts[i])]
         #transpose the matrix
         # FRAinput = FRAinput.T
-        bounds, bf, Th, data, spikes = FRAbounds(FRAinput, f32file)
+        bounds, bf, Th, data, spikes, levels = FRAbounds(FRAinput, f32file)
+        #plot the spikes in a heatmap in a 4 x8 grid
+        plt.subplot(4, 8, i + 1)
+        #force colorbar to be the same for all plots
+        plt.imshow(spikes, origin='lower', aspect='auto', cmap='hot')
+        # plt.clim(0, 10)
+        if i == 24:
+            plt.xticks(np.linspace(0, spikes.shape[1] - 1, num=6),
+                       np.round(np.exp(np.linspace(np.log(min(freqs)), np.log(max(freqs)), num=6)) / 1000, 2))
+            plt.yticks(np.linspace(0, spikes.shape[0] - 1, num=6),
+                       np.round(np.linspace(min(levels), max(levels), num=6), 2))
+            plt.xlabel('Freq (kHz)', fontsize=10)
+            plt.ylabel('Level (dB)', fontsize=10)
+
+        plt.colorbar()
+        #have one giant colorbar
+        # if i == 31:
+        #     plt.colorbar(label='Spikes per presentation')
+    plt.show()
+
     return block
     #
 
