@@ -165,11 +165,13 @@ if __name__ == '__main__':
     #     highpass_filter(file_path, file, tank, output_folder)
     # block = highpass_filter(file_path, file_name, tank, output_folder)
     # block = ['Block1-3']
+    #exclude all files that don't end with .mat
+    files = [file for file in files if file.endswith('.mat')]
     for file in files:
         mat_data = scipy.io.loadmat(file_path + file)
         block = mat_data['recBlock']
         print(block)
-        clean_data_pipeline(output_folder, block, side = 'left')
+        clean_data_pipeline(output_folder, block, side = 'right')
 
         run_fra('right', file_path, file, output_folder)
         # run_fra('left', file_path, file, output_folder)

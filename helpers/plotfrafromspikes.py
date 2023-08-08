@@ -83,6 +83,8 @@ def run_fra(side, file_path, file_name, output_folder):
     tdt_order = tdt_channels[warp_electrodes[orderofwarpelectrodescruella_right]]
 
     print(tdt_order)
+    date = file_name.split('_')
+    caldate = date[3]
 
     #combine the two arrays
     combined = np.vstack((warp_electrodes, tdt_channels))
@@ -131,12 +133,14 @@ def run_fra(side, file_path, file_name, output_folder):
 
     #increase the space between the plots
     #increase the size of the figure
+
     plt.gcf().set_size_inches(10, 15)
     plt.subplots_adjust(wspace=0.6, hspace=0.7)
-    plt.suptitle(f'FRA for {block[0]}, {side} side F1815', fontsize=16)
+    plt.suptitle(f'FRA for {block[0]}, {side} side F1815, {caldate}', fontsize=16)
     #save figure in output folder
+    #extract the date from the file name
 
-    plt.savefig(f'{output_folder}FRA_for_{block[0]}_{side}_side_F1815.pdf', dpi = 300, bbox_inches='tight')
+    plt.savefig(f'{output_folder}FRA_for_{block[0]}_{caldate}{side}_side_F1815.pdf', dpi = 300, bbox_inches='tight')
     plt.show()
 
     return block
