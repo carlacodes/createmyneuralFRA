@@ -78,7 +78,7 @@ def highpass_filter(file_path, file_name, tank, output_folder):
             traces.append(np.vstack(traces_ss))
 
         #save as matlab file as well
-        sio.savemat(output_folder + f'HPf{block[0]}{i2 + 1}.mat', {'traces': traces})
+        # sio.savemat(output_folder + f'HPf{block[0]}{i2 + 1}.mat', {'traces': traces})
         fname = f'HPf{block[0]}{i2 + 1}.h5'
         with h5py.File(output_folder + fname, 'w') as hf:
             hf.create_dataset('traces', data=traces, compression='gzip', compression_opts=9)
