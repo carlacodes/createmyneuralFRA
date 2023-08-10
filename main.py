@@ -111,10 +111,16 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
 
     cleaned_data = []
     print('Cleaning data...')
-    for ii in range(len(traces_hh)):
-        print('at trial ' + str(ii))
-        to_clean = np.vstack((traces_h[ii], traces_hh[ii]))
-        cleaned_data.append(clean_data(0, to_clean))
+    try:
+        for ii in range(len(traces_hh)):
+            print('at trial ' + str(ii))
+            to_clean = np.vstack((traces_h[ii], traces_hh[ii]))
+
+            cleaned_data.append(clean_data(0, to_clean))
+    except:
+        print('error cleaning data, probably shitty data')
+        print(fname)
+        return block
 
     fs = 24414.065
     nChan = 32
