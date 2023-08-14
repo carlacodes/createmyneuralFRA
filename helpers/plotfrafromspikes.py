@@ -64,11 +64,20 @@ def run_fra(side, file_path, file_name, output_folder):
                     (spikesintrial >= int(0.1 * 24414.0625)) & (spikesintrial < int(0.2 * 24414.0625))]
                 spikesintrial_afterstim = spikesintrial[
                     (spikesintrial <= int(0.2 * 24414.0625)) & (spikesintrial < int(0.3 * 24414.0625))]
+
             except:
                 print('error')
                 print(spikesintrial)
-            sumspikes_t_test_before[i][i2] = len(spikesintrial_beforestim)
-            sumspikes_t_test_after[i][i2] = len(spikesintrial_afterstim)
+            try:
+                sumspikes_t_test_before[i][i2] = len(spikesintrial_beforestim)
+            except:
+                sumspikes_t_test_before[i][i2] = 0
+            try:
+                sumspikes_t_test_after[i][i2] = len(spikesintrial_afterstim)
+            except:
+                sumspikes_t_test_after[i][i2] = 0
+
+
 
     #now conduct a students' t test to see if the spikes from 0.1 to 0.2s are significantly different from 0.2 to 0.3s
     #get the mean spikes from 0.1 to 0.2s but iterate over each channel
@@ -78,14 +87,42 @@ def run_fra(side, file_path, file_name, output_folder):
         spikes_1 = sumspikes_t_test_before[i, :]
         spikes_2 = sumspikes_t_test_after[i, :]
         #get the number of trials
-        t_statistic, p_value = scipy.stats.ttest_ind(spikes_1, spikes_2, equal_var=False, alternative='less')
-
+        t_statistic, p_value = scipy.stats.ttest_ind(spikes_1, spikes_2, equal_var=False, alternative='greater')
+        #calculate it manually
+        #calculate the mean of the spikes from 0.1 to 0.2s
+        mean_spikes_1 = np.mean(spikes_1)
+        #calculate the mean of the spikes from 0.2 to 0.3s
+        mean_spikes_2 = np.mean(spikes_2)
+        #calculate the standard deviation of the spikes from 0.1 to 0.2s
+        std_spikes_1 = np.std(spikes_1)
+        #calculate the standard deviation of the spikes from 0.2 to 0.3s
+        std_spikes_2 = np.std(spikes_2)
+        #calculate the number of trials
+        n_1 = len(spikes_1)
+        n_2 = len(spikes_2)
+        #calculate the standard error of the mean
+        sem_1 = std_spikes_1/np.sqrt(n_1)
+        sem_2 = std_spikes_2/np.sqrt(n_2)
+        #calculate the standard error of the difference between the means
+        sed = np.sqrt(sem_1**2.0 + sem_2**2.0)
+        #calculate the t statistic
+        t_statistic = (mean_spikes_1 - mean_spikes_2) / sed
+        #compare the t statistic to the critical t value
+        df = n_1 + n_2 - 2
+        alpha = 0.05
+        #calculate the critical t value
+        cv = scipy.stats.t.ppf(1.0 - alpha, df)
+        #calculate the p value
+        p = (1.0 - scipy.stats.t.cdf(abs(t_statistic), df)) * 2.0
+        #print the results
+        print('t=%.3f, df=%d, cv=%.3f, p=%.3f' % (t_statistic, df, cv, p))
         if p_value<= 0.05:
             print('significant')
             #if the mean spikes from 0.1 to 0.2s are greater than the mean spikes from 0.2 to 0.3s, then the channel is on
             soundonset_channel = i
         else:
             print('not significant')
+            ns_channel_list.append(i)
 
 
     # avgspikes = avgspikes / 1.2
@@ -150,10 +187,10 @@ def run_fra(side, file_path, file_name, output_folder):
         #force colorbar to be the same for all plots
         plt.imshow(spikes, origin='lower', aspect='auto', cmap='hot')
         # plt.clim(0, 10)
-        #if i is in ns_channel list then plot a grey box over it
-        if i in ns_channels:
-            plt.axvspan(0, 50, facecolor='grey', alpha=0.5)
+        #if i is in ns_channel list then plot a grey box over the imshow plot
 
+        if i in ns_channel_list:
+            plt.axvspan(0, spikes.shape[1] - 1, facecolor='grey', alpha=0.5)
         if i == 24:
             plt.xticks(np.linspace(0, spikes.shape[1] - 1, num=6),
                        np.round(np.exp(np.linspace(np.log(min(freqs)), np.log(max(freqs)), num=6)) / 1000, 2), fontsize=8, rotation = 45)
