@@ -47,8 +47,8 @@ def highpass_filter(file_path, file_name, tank, output_folder):
     sTimes = StartSamples / fStim  # seconds
 
     # Define epoch timings and filter parameters
-    sT = sTimes[:, np.newaxis] - 0.2
-    sT = np.hstack((sT, sT + 1))  # epoch 400 ms before and 1.2 seconds after
+    sT = sTimes[:, np.newaxis] - 0.1
+    sT = np.hstack((sT, sT + 0.1))  # epoch 400 ms before and 1.2 seconds after
     sT = (sT * fs).astype(int)  # samples
     f = np.where(sT[:, 0] > 0)[0]  # check first index is not negative
     sT = sT[f, :]
@@ -179,13 +179,13 @@ if __name__ == '__main__':
         mat_data = scipy.io.loadmat(file_path + file)
         block = mat_data['recBlock']
 
-        # block = highpass_filter(file_path, file, tank, output_folder)
+        block = highpass_filter(file_path, file, tank, output_folder)
 
         # print(block)
-        clean_data_pipeline(output_folder, block, side = 'left')
+        # clean_data_pipeline(output_folder, block, side = 'left')
 
         # run_fra('right', file_path, file, output_folder)
-        run_fra('left', file_path, file, output_folder)
+        # run_fra('left', file_path, file, output_folder)
 
 
 
