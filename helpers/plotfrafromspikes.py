@@ -87,7 +87,7 @@ def run_fra(side, file_path, file_name, output_folder):
         spikes_1 = sumspikes_t_test_before[i, :]
         spikes_2 = sumspikes_t_test_after[i, :]
         #get the number of trials
-        t_statistic, p_value = scipy.stats.ttest_ind(spikes_1, spikes_2, equal_var=False, alternative='greater')
+        t_statistic, p_value = scipy.stats.ttest_ind(spikes_1, spikes_2, equal_var=False, alternative='less')
         #calculate it manually
         #calculate the mean of the spikes from 0.1 to 0.2s
         mean_spikes_1 = np.mean(spikes_1)
@@ -116,7 +116,7 @@ def run_fra(side, file_path, file_name, output_folder):
         p = (1.0 - scipy.stats.t.cdf(abs(t_statistic), df)) * 2.0
         #print the results
         print('t=%.3f, df=%d, cv=%.3f, p=%.3f' % (t_statistic, df, cv, p))
-        if p_value<= 0.05:
+        if p_value<= 0.01:
             print('significant')
             #if the mean spikes from 0.1 to 0.2s are greater than the mean spikes from 0.2 to 0.3s, then the channel is on
             soundonset_channel = i
