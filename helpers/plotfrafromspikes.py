@@ -87,7 +87,7 @@ def run_fra(side, file_path, file_name, output_folder):
         spikes_1 = sumspikes_t_test_before[i, :]
         spikes_2 = sumspikes_t_test_after[i, :]
         #get the number of trials
-        t_statistic, p_value = scipy.stats.ttest_ind(spikes_1, spikes_2, equal_var=False, alternative='less')
+        t_statistic, p_value = scipy.stats.ttest_ind(spikes_1, spikes_2, equal_var=False)
         #calculate it manually
         #calculate the mean of the spikes from 0.1 to 0.2s
         mean_spikes_1 = np.mean(spikes_1)

@@ -178,10 +178,10 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
 if __name__ == '__main__':
     file_name = 'Recording_Session_Date_25-Jan-2023_Time_12-26-44.mat'
     tank = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS//'
-    output_folder = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS\output_filtered//'
+    output_folder = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS\output_filtered//before13072022/'
 
     #run through the high_pass filter for a whole directory
-    file_path = 'D:\Data\F1815_Cruella\FRAS//'
+    file_path = 'D:\Data\F1815_Cruella\FRAS//before13072022/'
     #get a lsit of all the files in the directory
     import os
     files = os.listdir(file_path)
@@ -190,6 +190,7 @@ if __name__ == '__main__':
     #     highpass_filter(file_path, file, tank, output_folder)
     # block = highpass_filter(file_path, file_name, tank, output_folder)
     # block = ['Block1-3']
+    # E:\Electrophysiological_Data\F1815_Cruella\FRAS\output_filtered\before13072022
     #exclude all files that don't end with .mat
     files = [file for file in files if file.endswith('.mat')]
     for file in files:
@@ -203,7 +204,7 @@ if __name__ == '__main__':
         # clean_data_pipeline(output_folder, block, side = 'left')
 
         run_fra('right', file_path, file, output_folder)
-        # run_fra('left', file_path, file, output_folder)
+        run_fra('left', file_path, file, output_folder)
 
 
 
