@@ -47,8 +47,8 @@ def highpass_filter(file_path, file_name, tank, output_folder):
     sTimes = StartSamples / fStim  # seconds
 
     # Define epoch timings and filter parameters
-    sT = sTimes[:, np.newaxis] - 0.1
-    sT = np.hstack((sT, sT + 0.1))  # epoch 400 ms before and 1.2 seconds after
+    sT = sTimes[:, np.newaxis] - 0.2
+    sT = np.hstack((sT, sT + 1))  # epoch so total duration is 0.8s
     sT = (sT * fs).astype(int)  # samples
     f = np.where(sT[:, 0] > 0)[0]  # check first index is not negative
     sT = sT[f, :]
@@ -79,6 +79,19 @@ def highpass_filter(file_path, file_name, tank, output_folder):
 
         #save as matlab file as well
         # sio.savemat(output_folder + f'HPf{block[0]}{i2 + 1}.mat', {'traces': traces})
+            #remove all inhomogeneous data
+        drop_list = []
+        for ii in range(len(traces)):
+            #get dimensions
+            dims = traces[ii].shape[1]
+            #if not the same shape as the first one, remove it
+            if dims != traces[0].shape[1]:
+                drop_list.append(ii)
+        traces = np.delete(traces, drop_list, axis=0)
+
+
+
+
         fname = f'HPf{block[0]}{i2 + 1}.h5'
         with h5py.File(output_folder + fname, 'w') as hf:
             hf.create_dataset('traces', data=traces, compression='gzip', compression_opts=9)
@@ -101,13 +114,13 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
     try:
         h = h5py.File(fname2, 'r')
         hh = h5py.File(fname, 'r')
+        traces_h = h['traces']
+        traces_hh = hh['traces']
+
     except:
         print('error reading file')
         print(fname)
         return block
-
-    traces_h = h['traces']
-    traces_hh = hh['traces']
 
     cleaned_data = []
     print('Cleaning data...')
@@ -134,7 +147,12 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
             # test = cleaned_data[ss]
             # test2=test[0][:,cc]
             # print('getting spike times for trial ' + str(ss) + ' channel ' + str(cc) )
-            t, wv = get_spike_times(cleaned_data[ss][0][cc,:])
+            #get the spike times -0.1s to 0.1s around the stim
+            #assuming each trial is 1s long, so 0.2s around the stim
+            start = int((0.1)*fs)  # 0.1s before stim
+            end = int((0.3*fs)) # 0.1s after stim
+            t, wv = get_spike_times(cleaned_data[ss][0][cc,start:end])
+            # t, wv = get_spike_times(cleaned_data[ss][0][cc,:])
             spikes_in_chan.append(t)
 
 
@@ -178,13 +196,13 @@ if __name__ == '__main__':
         print(file)
         mat_data = scipy.io.loadmat(file_path + file)
         block = mat_data['recBlock']
-
-        block = highpass_filter(file_path, file, tank, output_folder)
-
-        # print(block)
+        #
+        # block = highpass_filter(file_path, file, tank, output_folder)
+        #
+        # # print(block)
         # clean_data_pipeline(output_folder, block, side = 'left')
 
-        # run_fra('right', file_path, file, output_folder)
+        run_fra('right', file_path, file, output_folder)
         # run_fra('left', file_path, file, output_folder)
 
 

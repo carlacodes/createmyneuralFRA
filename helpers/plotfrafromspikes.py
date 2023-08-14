@@ -44,8 +44,48 @@ def run_fra(side, file_path, file_name, output_folder):
     for i in range(len(spikes)):
         for i2 in range(len(spikes[i])):
             spikesintrial = spikes[i][i2]
+            #filter spikes in trial to be between 0.2 and 0.3 seconds as epoch was -0.2 s before stim
+            try:
+                spikesintrial = spikesintrial[(spikesintrial >= int(0.2*24414.0625)) & (spikesintrial <= int(0.3*24414.0625))]
+            except:
+                print('error')
+                print(spikesintrial)
             sumspikes[i][i2] = len(spikesintrial)
 
+    sumspikes_t_test_before = np.zeros((len(spikes), len(spikes[0])))
+    sumspikes_t_test_after = np.zeros((len(spikes), len(spikes[0])))
+
+    for i in range(len(spikes)):
+        for i2 in range(len(spikes[i])):
+            spikesintrial = spikes[i][i2]
+            # filter spikes in trial to be between 0.1 and 0.3 seconds as epoch was -0.2 s before stim
+            try:
+                spikesintrial_beforestim = spikesintrial[
+                    (spikesintrial >= int(0.1 * 24414.0625)) & (spikesintrial < int(0.2 * 24414.0625))]
+                spikesintrial_afterstim = spikesintrial[
+                    (spikesintrial <= int(0.2 * 24414.0625)) & (spikesintrial < int(0.3 * 24414.0625))]
+            except:
+                print('error')
+                print(spikesintrial)
+            sumspikes_t_test_before[i][i2] = len(spikesintrial_beforestim)
+            sumspikes_t_test_after[i][i2] = len(spikesintrial_afterstim)
+
+    #now conduct a students' t test to see if the spikes from 0.1 to 0.2s are significantly different from 0.2 to 0.3s
+    #get the mean spikes from 0.1 to 0.2s but iterate over each channel
+    ns_channel_list = []
+    for i in range(len(sumspikes_t_test_before)):
+
+        spikes_1 = sumspikes_t_test_before[i, :]
+        spikes_2 = sumspikes_t_test_after[i, :]
+        #get the number of trials
+        t_statistic, p_value = scipy.stats.ttest_ind(spikes_1, spikes_2, equal_var=False, alternative='less')
+
+        if p_value<= 0.05:
+            print('significant')
+            #if the mean spikes from 0.1 to 0.2s are greater than the mean spikes from 0.2 to 0.3s, then the channel is on
+            soundonset_channel = i
+        else:
+            print('not significant')
 
 
     # avgspikes = avgspikes / 1.2
@@ -110,6 +150,10 @@ def run_fra(side, file_path, file_name, output_folder):
         #force colorbar to be the same for all plots
         plt.imshow(spikes, origin='lower', aspect='auto', cmap='hot')
         # plt.clim(0, 10)
+        #if i is in ns_channel list then plot a grey box over it
+        if i in ns_channels:
+            plt.axvspan(0, 50, facecolor='grey', alpha=0.5)
+
         if i == 24:
             plt.xticks(np.linspace(0, spikes.shape[1] - 1, num=6),
                        np.round(np.exp(np.linspace(np.log(min(freqs)), np.log(max(freqs)), num=6)) / 1000, 2), fontsize=8, rotation = 45)
