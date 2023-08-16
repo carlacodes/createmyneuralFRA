@@ -9,8 +9,6 @@ import h5py
 import pickle
 
 
-
-
 def run_fra(side, file_path, file_name, output_folder):
     data = scipy.io.loadmat(file_path + file_name)
     block = data['recBlock']
