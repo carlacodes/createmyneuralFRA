@@ -177,11 +177,11 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # file_name = 'Recording_Session_Date_25-Jan-2023_Time_12-26-44.mat'
-    tank = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS//'
-    output_folder = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS\output_filtered//before13072022/'
+    tank = 'E:\Electrophysiological_Data\F1702_Zola_Nellie\FRAS/'
+    output_folder = 'E:\Electrophysiological_Data\F1702_Zola_Nellie\FRAS/'
 
     #run through the high_pass filter for a whole directory
-    file_path = 'D:\Data\F1815_Cruella\FRAS//before13072022/'
+    file_path = 'D:\Data\F1702_Zola\FRAS//'
     #get a lsit of all the files in the directory
     import os
     files = os.listdir(file_path)
@@ -198,13 +198,13 @@ if __name__ == '__main__':
         mat_data = scipy.io.loadmat(file_path + file)
         block = mat_data['recBlock']
         #
-        # block = highpass_filter(file_path, file, tank, output_folder)
+        block = highpass_filter(file_path, file, tank, output_folder)
         #
         # # print(block)
-        # clean_data_pipeline(output_folder, block, side = 'left')
+        clean_data_pipeline(output_folder, block, side = 'left')
 
-        run_fra('right', file_path, file, output_folder)
-        run_fra('left', file_path, file, output_folder)
+        # run_fra('right', file_path, file, output_folder)
+        # run_fra('left', file_path, file, output_folder)
 
 
 
