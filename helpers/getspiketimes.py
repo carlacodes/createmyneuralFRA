@@ -1,5 +1,7 @@
 import numpy as np
 from scipy import interpolate
+from scipy.interpolate import CubicSpline
+
 
 def get_spike_times(x):
     # Parameters
@@ -64,7 +66,9 @@ def get_spike_times(x):
     wv = wv[~rm_idx]
 
     # Interpolate waveforms
-    interp = interpolate.interp1d(window, wv, kind='cubic', axis=1)
+    # interp = interpolate.interp1d(window, wv, kind='cubic', axis=1)
+    # wv = interp(interpWind)
+    interp = CubicSpline(window, wv, axis=1)
     wv = interp(interpWind)
 
     # Align events

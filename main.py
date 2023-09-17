@@ -201,7 +201,7 @@ if __name__ == '__main__':
         # block = highpass_filter(file_path, file, tank, output_folder)
         #
         # # print(block)
-        # clean_data_pipeline(output_folder, block, side = 'left')
+        clean_data_pipeline(output_folder, block, side = 'left')
 
         run_fra('right', file_path, file, output_folder)
         run_fra('left', file_path, file, output_folder)

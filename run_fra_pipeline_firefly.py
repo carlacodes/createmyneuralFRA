@@ -27,7 +27,7 @@ def highpass_filter(file_path, file_name, tank, output_folder):
     # file_path = 'D:/Data/F1815_Cruella/weekfebruary282022/F1815_Cruella/'
     # file_name = 'Recording_Session_Date_01-Mar-2022_Time_15-56-19.mat'
     mat_data = scipy.io.loadmat(file_path + file_name)
-    block = mat_data['recBlock']
+    block = file.split('')[4]
     #
     # # Extract relevant data from the MATLAB .mat file
     # tank = 'D:/Electrophysiological Data/F1815_Cruella/'
@@ -43,12 +43,12 @@ def highpass_filter(file_path, file_name, tank, output_folder):
         # params = data.streams['info']
     fStim = 24414.0625*2
     fs = 24414.0625
-    StartSamples = mat_data['StartSamples'].flatten()
-    sTimes = StartSamples / fStim  # seconds
+    StartSamples = mat_data['StartTime'].flatten()
+    sTimes = StartSamples  # seconds
 
     # Define epoch timings and filter parameters
     sT = sTimes[:, np.newaxis] - 0.2
-    sT = np.hstack((sT, sT + 1))  # epoch so total duration is 1s
+    sT = np.hstack((sT, sT + 1))  # epoch so total duration is 0.8s
     sT = (sT * fs).astype(int)  # samples
     f = np.where(sT[:, 0] > 0)[0]  # check first index is not negative
     sT = sT[f, :]
@@ -69,11 +69,16 @@ def highpass_filter(file_path, file_name, tank, output_folder):
 
     streams = ['BB_2', 'BB_3', 'BB_4', 'BB_5']
 
-    for i2 in range(4):
+    for i2 in range(len(streams)):
         traces = []
         for ss in range(sT.shape[0]-1):
             # Epoch and filter
-            dat = data.streams[streams[i2]].data[:, sT[ss, 0]:sT[ss, 1]]
+            try:
+                dat = data.streams[streams[i2]].data[:, sT[ss, 0]:sT[ss, 1]]
+            except:
+                print('error reading stream')
+                print(streams[i2])
+                return block
             traces_ss = [scipy.signal.filtfilt(b, a, dat[cc, :]) for cc in range(16)]
             traces.append(np.vstack(traces_ss))
 
@@ -99,8 +104,7 @@ def highpass_filter(file_path, file_name, tank, output_folder):
 
 
 def clean_data_pipeline(output_folder, block, side = 'right'):
-    fname = f'{output_folder}HPf{block[0]}1.h5'
-    fname2 = f'{output_folder}HPf{block[0]}2.h5'
+
 
     if side == 'right':
         fname = f'{output_folder}HPf{block[0]}1.h5'
@@ -112,8 +116,8 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
 
     # Access the traces from the loaded data
     try:
-        h = h5py.File(fname2, 'r')
-        hh = h5py.File(fname, 'r')
+        h = h5py.File(fname, 'r')
+        hh = h5py.File(fname2, 'r')
         traces_h = h['traces']
         traces_hh = hh['traces']
 
@@ -150,8 +154,8 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
             #get the spike times -0.1s to 0.1s around the stim
             #assuming each trial is 1s long, so 0.2s around the stim
             start = int((0.1)*fs)  # 0.1s before stim
-            end = int((0.8*fs)) # 0.1s after stim
-            t, wv = get_spike_times(cleaned_data[ss][0][cc,start:end])
+            end = int((0.3*fs)) # 0.1s after stim
+            t, wv = get_spike_times(cleaned_data[ss][0][cc,:])
             # t, wv = get_spike_times(cleaned_data[ss][0][cc,:])
             spikes_in_chan.append(t)
 
@@ -177,28 +181,39 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # file_name = 'Recording_Session_Date_25-Jan-2023_Time_12-26-44.mat'
-    tank = 'E:\Electrophysiological_Data\F1702_Zola_Nellie\FRAS/'
-    output_folder = 'E:\Electrophysiological_Data\F1702_Zola_Nellie\FRAS/'
+    tank = 'E:\Electrophysiological_Data\F1604_Squinty\FRAs/'
+    output_folder = 'E:\Electrophysiological_Data\F1604_Squinty\FRAs/output/'
 
-    file_path = 'D:\Data\F1702_Zola\FRAS//'
+    file_path = 'D:\Data\F1306_Firefly\F1306_Firefly\FRAs/'
     #get a lsit of all the files in the directory
     import os
     files = os.listdir(file_path)
 
     #exclude all files that don't end with .mat
-    files = [file for file in files if file.endswith('.mat')]
+    files = [file for file in files if file.endswith('.txt')]
     #only the right side good for zola
+    # files = ['Recording_Session_Date_09-Mar-2020_Time_14-17-40.mat']
     for file in files:
         print(file)
-        mat_data = scipy.io.loadmat(file_path + file)
-        block = mat_data['recBlock']
+        #load a txt file
+        #read a .txt. file instead of a mat data file
+        mat_data = pd.read_csv(file, delimiter='\t')
+        #recblock is in the name of the file
+        block = file.split('')[4]
+
+
+
+        #
+        # block = mat_data['recBlock']
         # #
         # block = highpass_filter(file_path, file, tank, output_folder)
+        #
+        # # block = highpass_filter(file_path, file, tank, output_folder)
         # #
         # # # print(block)
         # clean_data_pipeline(output_folder, block, side = 'right')
 
-        run_fra('left', file_path, file, output_folder, animal='F1702')
+        run_fra('right', file_path, file, output_folder, animal = 'F1604')
         # run_fra('left', file_path, file, output_folder)
 
 

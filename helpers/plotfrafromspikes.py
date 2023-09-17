@@ -9,11 +9,14 @@ import h5py
 import pickle
 
 
-def run_fra(side, file_path, file_name, output_folder):
+def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
     data = scipy.io.loadmat(file_path + file_name)
     block = data['recBlock']
-
-    freqs = data['currTrialDets']['Freq'][0][0].flatten()
+    try:
+        freqs = data['currTrialDets']['Freq'][0][0].flatten()
+    except:
+        print('no freqs')
+        return
     #remove the last freqwuency
     lvls = data['currTrialDets']['Lvl'][0][0].flatten()
     lvls = 80 - lvls
@@ -43,11 +46,18 @@ def run_fra(side, file_path, file_name, output_folder):
         for i2 in range(len(spikes[i])):
             spikesintrial = spikes[i][i2]
             #filter spikes in trial to be between 0.2 and 0.3 seconds as epoch was -0.2 s before stim
-            try:
-                spikesintrial = spikesintrial[(spikesintrial >= int(0.2*24414.0625)) & (spikesintrial <= int(0.3*24414.0625))]
-            except:
-                print('error')
-                print(spikesintrial)
+            if animal == 'F1702' or 'F1604':
+                try:
+                    spikesintrial = spikesintrial[(spikesintrial >= int(0.1*24414.0625)) & (spikesintrial <= int(0.8*24414.0625))]
+                except:
+                    print('error')
+                    print(spikesintrial)
+            else:
+                try:
+                   spikesintrial = spikesintrial[(spikesintrial >= int(0.2*24414.0625)) & (spikesintrial <= int(0.3*24414.0625))]
+                except:
+                    print('error, no spikes')
+                    print(spikesintrial)
             sumspikes[i][i2] = len(spikesintrial)
 
     sumspikes_t_test_before = np.zeros((len(spikes), len(spikes[0])))
@@ -170,10 +180,21 @@ def run_fra(side, file_path, file_name, output_folder):
     f32file = 0
     for i in tdt_order.flatten():
         spike_counts[i] = sumspikes[i, :]
-        FRAinput = np.empty((len(spike_counts[i]), 3))
-        FRAinput[:, 0] = spike_counts[i]
-        FRAinput[:, 1] = freqs[:len(spike_counts[i])]
-        FRAinput[:, 2] = lvls[:len(spike_counts[i])]
+        try:
+            FRAinput = np.empty((len( spike_counts[i]), 3))
+
+            FRAinput[:, 0] = spike_counts[i]
+
+            FRAinput[:, 1] = freqs[:len(spike_counts[i])]
+            FRAinput[:, 2] = lvls[:len(spike_counts[i])]
+        except:
+            FRAinput = np.empty((len(freqs), 3))
+
+            spikecountsfortrial = spike_counts[i]
+            FRAinput[:, 0] = spikecountsfortrial[:len(freqs)]
+            FRAinput[:, 1] = freqs[:]
+            FRAinput[:, 2] = lvls[:]
+
         #transpose the matrix
         # FRAinput = FRAinput.T
         bounds, bf, Th, data, spikes, levels = FRAbounds(FRAinput, f32file)
@@ -181,10 +202,16 @@ def run_fra(side, file_path, file_name, output_folder):
         #find where i is in the combined mat
         #find the corresponding tdt channel
         #find the corresponding electrode
+        #flip spikes up down
+        # spikes = np.flipud(spikes)
+        #transpose spikes
+        # spikes = spikes.T
+
         electrode = combined[0, np.where(combined[1, :] == i)]
+        # spikes = np.rot90(spikes, -1)
         plt.subplot(8, 4, int(electrode[0][0]) + 1)
         #force colorbar to be the same for all plots
-        plt.imshow(spikes, origin='lower', aspect='auto', cmap='hot')
+        plt.imshow(spikes, origin='lower', aspect='auto',cmap='hot')
         # plt.clim(0, 10)
         #if i is in ns_channel list then plot a grey box over the imshow plot
 
@@ -216,11 +243,15 @@ def run_fra(side, file_path, file_name, output_folder):
 
     plt.gcf().set_size_inches(10, 15)
     plt.subplots_adjust(wspace=0.6, hspace=0.7)
-    plt.suptitle(f'FRA for {block[0]}, {side} side F1815, {caldate}', fontsize=16)
+    plt.suptitle(f'FRA for {block[0]}, {side} side {animal}, {caldate}', fontsize=16)
     #save figure in output folder
     #extract the date from the file name
 
-    plt.savefig(f'{output_folder}FRA_for_{block[0]}_{caldate}{side}_side_F1815.pdf', dpi = 300, bbox_inches='tight')
+    plt.savefig(f'{output_folder}FRA_for_{block[0]}_{caldate}{side}_side_'+animal+'.pdf', dpi = 300, bbox_inches='tight')
+    plt.savefig(f'{output_folder}FRA_for_{block[0]}_{caldate}{side}_side_' + animal + '.png', dpi=300,
+                bbox_inches='tight')
+
+
     plt.show()
 
     return block

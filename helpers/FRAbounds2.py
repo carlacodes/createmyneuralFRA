@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter
+from scipy.signal import convolve2d
 
 def FRAbounds(file, f32file):
     # def smoothFRA(z):
@@ -19,6 +20,20 @@ def FRAbounds(file, f32file):
     #     return z2
     def smoothFRA(z, sigma=1):
         return gaussian_filter(z, sigma=sigma)
+
+    # def smoothFRA(z):
+    #     # Define the smoothing kernel
+    #     s = np.array([[0.25, 0.5, 0.25],
+    #                   [0.5, 1, 0.5],
+    #                   [0.25, 0.5, 0.25]])
+    #
+    #     # Normalize the kernel
+    #     s = s / np.sum(s)
+    #
+    #     # Apply convolution to smooth the data
+    #     smoothed_data = convolve2d(z, s, mode='same', boundary='wrap')
+    #
+    #     return smoothed_data
     def smooth_fra_cg(z):
         X, Y = np.meshgrid(np.arange(z.shape[1]), np.arange(z.shape[0]))
         X2, Y2 = np.meshgrid(np.arange(0, z.shape[1], 0.01), np.arange(0, z.shape[0], 0.01))
