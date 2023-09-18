@@ -35,8 +35,11 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
         print('no freqs')
         return
     #remove the last freqwuency
+    if animal == 'F1306':
+        fname = f'{output_folder}spikes{block[0]}right.pkl'
 
-    fname = f'{output_folder}spikes{block[0]}{side}.pkl'
+    else:
+        fname = f'{output_folder}spikes{block[0]}{side}.pkl'
     #read the pkl file
     try:
         with open(fname, 'rb') as f:
@@ -51,6 +54,14 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
     # spikes_data = h5py.File(fname, 'r')
 
     spikes = spikes_data
+    print('spikes shape:')
+    print(spikes.shape)
+    if animal == 'F1306':
+        if side == 'left':
+            #take only the first 16 channels
+            spikes = spikes[:16, :]
+        else:
+            spikes = spikes[16:, :]
     freqs = freqs[:len(spikes[0])]
     lvls = lvls[:len(spikes[0])]
 
@@ -163,16 +174,31 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
     #
 
     if side == 'right':
-        orderofwarpelectrodescruella_right = np.fliplr([[30, 31, 14, 15],
-                                               [28, 29, 12 ,13],
-                                               [26 ,27 ,10 ,11],
-                                               [24 ,25, 8, 9],
-                                               [23, 22, 7 ,6],
-                                               [21, 20, 5, 4],
-                                               [19, 18, 3, 2],
-                                               [17, 16, 1, 0]])
+
+        if animal == 'F1306':
+            orderofwarpelectrodescruella_right = np.fliplr([[3,7,11,15],
+                                                  [2,6,10,14],
+                                                    [1,5,9,13],
+                                                    [0,4,8,12]] )
+
+        else:
+            orderofwarpelectrodescruella_right = np.fliplr([[30, 31, 14, 15],
+                                                   [28, 29, 12 ,13],
+                                                   [26 ,27 ,10 ,11],
+                                                   [24 ,25, 8, 9],
+                                                   [23, 22, 7 ,6],
+                                                   [21, 20, 5, 4],
+                                                   [19, 18, 3, 2],
+                                                   [17, 16, 1, 0]])
     else:
-        orderofwarpelectrodescruella_right = ([[30, 31, 14, 15],
+        if animal == 'F1306':
+            orderofwarpelectrodescruella_right = [[3,7,11,15],
+                                                  [2,6,10,14],
+                                                    [1,5,9,13],
+                                                    [0,4,8,12]]
+
+        else:
+            orderofwarpelectrodescruella_right = ([[30, 31, 14, 15],
                                                [28, 29, 12 ,13],
                                                [26 ,27 ,10 ,11],
                                                [24 ,25, 8, 9],
@@ -182,23 +208,39 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
                                                [17, 16, 1, 0]])
 
 
+    if animal == 'F1306':
+        warp_electrodes = np.array([
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+            11, 12, 13, 14, 15,
+        ])
+        tdt_channels = np.array([
+            1, 3, 5, 7, 2, 4, 6, 8, 10, 12,
+            14, 16, 9, 11, 13, 15
+        ]) - 1
 
-    warp_electrodes = np.array([
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-        11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-        21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
-    ])
-    tdt_channels = np.array([
-        1, 3, 5, 7, 2, 4, 6, 8, 10, 12,
-        14, 16, 9, 11, 13, 15, 17, 19, 21, 23,
-        18, 20, 22, 24, 26, 28, 30, 32, 25, 27,
-        29, 31
-    ])-1
+    else:
+
+        warp_electrodes = np.array([
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+            11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+            21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
+        ])
+        tdt_channels = np.array([
+            1, 3, 5, 7, 2, 4, 6, 8, 10, 12,
+            14, 16, 9, 11, 13, 15, 17, 19, 21, 23,
+            18, 20, 22, 24, 26, 28, 30, 32, 25, 27,
+            29, 31
+        ])-1
     tdt_order = tdt_channels[warp_electrodes[orderofwarpelectrodescruella_right]]
 
     print(tdt_order)
-    date = file_name.split('_')
-    caldate = date[3]
+
+    if animal == 'F1306':
+        date = file_name.split()
+        caldate = date[0]
+    else:
+        date = file_name.split('_')
+        caldate = date[3]
 
     #combine the two arrays
     combined = np.vstack((warp_electrodes, tdt_channels))
@@ -237,8 +279,10 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
 
         electrode = combined[0, np.where(combined[1, :] == i)]
         # spikes = np.rot90(spikes, -1)
-
-        ax = plt.subplot(8, 4, int(electrode[0][0]) + 1)
+        if animal == 'F1306':
+            ax = plt.subplot(4, 4, int(electrode[0][0]) + 1)
+        else:
+            ax = plt.subplot(8, 4, int(electrode[0][0]) + 1)
         #force colorbar to be the same for all plots
         ax.imshow(spikes, origin='lower', aspect='auto',cmap='hot')
         #plot the bounds as white lines
@@ -289,13 +333,21 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
 
     plt.gcf().set_size_inches(10, 15)
     plt.subplots_adjust(wspace=0.6, hspace=0.7)
-    plt.suptitle(f'FRA for {block[0]}, {side} side {animal}, {caldate}', fontsize=16)
     #save figure in output folder
     #extract the date from the file name
+    if animal == 'F1306':
+        plt.suptitle(f'FRA for {block}, {side} side {animal}, {caldate}', fontsize=16)
 
-    plt.savefig(f'{output_folder}FRA_for_{block[0]}_{caldate}{side}_side_'+animal+'.pdf', dpi = 300, bbox_inches='tight')
-    plt.savefig(f'{output_folder}FRA_for_{block[0]}_{caldate}{side}_side_' + animal + '.png', dpi=300,
-                bbox_inches='tight')
+        plt.savefig(f'{output_folder}FRA_for_{block}_{caldate}{side}_side_'+animal+'.pdf', dpi = 300, bbox_inches='tight')
+        plt.savefig(f'{output_folder}FRA_for_{block}_{caldate}{side}_side_' + animal + '.png', dpi=300,
+                    bbox_inches='tight')
+    else:
+        plt.suptitle(f'FRA for {block[0]}, {side} side {animal}, {caldate}', fontsize=16)
+
+        plt.savefig(f'{output_folder}FRA_for_{block[0]}_{caldate}{side}_side_' + animal + '.pdf', dpi=300,
+                    bbox_inches='tight')
+        plt.savefig(f'{output_folder}FRA_for_{block[0]}_{caldate}{side}_side_' + animal + '.png', dpi=300,
+                    bbox_inches='tight')
 
 
     plt.show()
