@@ -73,16 +73,40 @@ def FRAbounds(file, f32file):
 
     # srate = np.mean(spikes.flatten()) + (1 / 5) * np.max(spikes)
     # Calculate the threshold (srate)
-    srate = np.min(spikes)  # Use the minimum spike rate as the threshold
+    # srate = np.min(spikes)  # Use the minimum spike rate as the threshold
 
+    mean_first_row = np.mean(spikes[0])
+
+    # Calculate the maximum value in the entire spikes array
+    max_value = np.max(spikes)
+
+    # Calculate srate using the specified formula
+    srate = mean_first_row + (1 / 5) * max_value
     # Determine boundaries of FRA
+    # bounds = np.zeros(nfreqs, dtype=int)
+    #
+    # for ii in range(nfreqs):
+    #     for jj in range(nlevels):
+    #         if spikes[jj, ii] >= srate:
+    #             bounds[ii] = jj
+    #             break
+    #
+    # # Handle special cases for the highest level and no response
+    # for ii in range(1, len(bounds)):
+    #     if bounds[ii] == 0:
+    #         bounds[ii] = nlevels
+    #     if bounds[ii] == bounds[ii - 1] and bounds[ii] < nlevels:
+    #         bounds[ii] = nlevels + 1
+
     bounds = np.zeros(nfreqs, dtype=int)
 
     for ii in range(nfreqs):
-        for jj in range(nlevels):
-            if spikes[jj, ii] >= srate:
-                bounds[ii] = jj
-                break
+        response_levels = np.where(spikes[:, ii] >= srate)[0]
+
+        if response_levels.size > 0:
+            bounds[ii] = response_levels[0]
+        else:
+            bounds[ii] = nlevels + 1
 
     # Handle special cases for the highest level and no response
     for ii in range(1, len(bounds)):

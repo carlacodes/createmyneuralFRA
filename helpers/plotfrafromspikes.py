@@ -141,7 +141,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
         # p = (1.0 - scipy.stats.t.cdf(abs(t_statistic), df)) * 2.0
         # #print the results
         # print('t=%.3f, df=%d, cv=%.3f, p=%.3f' % (t_statistic, df, cv, p))
-        if p_value<= 0.05:
+        if p_value <= 0.05:
             # print('significant')
             #if the mean spikes from 0.1 to 0.2s are greater than the mean spikes from 0.2 to 0.3s, then the channel is on
             soundonset_channel = i
@@ -161,14 +161,26 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
     # fra_input[:, 1] = freqs[:776]
     # fra_input[:, 2] = lvls[:776]
     #
-    orderofwarpelectrodescruella_right = np.fliplr([[30, 31, 14, 15],
-                                           [28, 29, 12 ,13],
-                                           [26 ,27 ,10 ,11],
-                                           [24 ,25, 8, 9],
-                                           [23, 22, 7 ,6],
-                                           [21, 20, 5, 4],
-                                           [19, 18, 3, 2],
-                                           [17, 16, 1, 0]])
+
+    if side == 'right':
+        orderofwarpelectrodescruella_right = np.fliplr([[30, 31, 14, 15],
+                                               [28, 29, 12 ,13],
+                                               [26 ,27 ,10 ,11],
+                                               [24 ,25, 8, 9],
+                                               [23, 22, 7 ,6],
+                                               [21, 20, 5, 4],
+                                               [19, 18, 3, 2],
+                                               [17, 16, 1, 0]])
+    else:
+        orderofwarpelectrodescruella_right = ([[30, 31, 14, 15],
+                                               [28, 29, 12 ,13],
+                                               [26 ,27 ,10 ,11],
+                                               [24 ,25, 8, 9],
+                                               [23, 22, 7 ,6],
+                                               [21, 20, 5, 4],
+                                               [19, 18, 3, 2],
+                                               [17, 16, 1, 0]])
+
 
 
     warp_electrodes = np.array([
@@ -225,9 +237,24 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
 
         electrode = combined[0, np.where(combined[1, :] == i)]
         # spikes = np.rot90(spikes, -1)
-        plt.subplot(8, 4, int(electrode[0][0]) + 1)
+
+        ax = plt.subplot(8, 4, int(electrode[0][0]) + 1)
         #force colorbar to be the same for all plots
-        plt.imshow(spikes, origin='lower', aspect='auto',cmap='hot')
+        ax.imshow(spikes, origin='lower', aspect='auto',cmap='hot')
+        #plot the bounds as white lines
+        #plot the bounds as contiguous lines
+        x_bounds = np.arange(len(bounds))
+
+        # Plot the bounds as contiguous lines
+        ax.plot(x_bounds, bounds, color='white', linewidth=2)        #remove that white space around the plot
+        #plot the bounds on the plot without shrinking the image
+
+
+        # for k, bound in enumerate(bounds):
+        #     if bound < spikes.shape[0]:
+        #         plt.plot(k, bound, 'w.', markersize=10)
+                # plt.plot([k - 0.5, k + 0.5], [bound, bound], color='white', linewidth=2)
+
         # plt.clim(0, 10)
         #if i is in ns_channel list then plot a grey box over the imshow plot
 
@@ -247,7 +274,10 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
             plt.yticks(np.linspace(0, spikes.shape[0] - 1, num=6),
                        np.round(np.linspace(min(levels), max(levels), num=6), 2), fontsize=8)
 
-        plt.colorbar()
+        from mpl_toolkits.axes_grid1 import make_axes_locatable
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.05)
+        cbar = plt.colorbar(ax.imshow(spikes, origin='lower', aspect='auto', cmap='hot'), cax=cax)
         plt.title(f'Channel {i + 1}', fontsize=10)
 
         #have one giant colorbar
