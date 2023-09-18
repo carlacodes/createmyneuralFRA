@@ -57,49 +57,46 @@ def FRAbounds(file, f32file):
     nlevels = len(levels)
 
     # Calculate Average Spike rates
-    spikes = np.array([np.mean(r[0][(r[1] == freq) & (r[2] == level)]) for freq in freqs for level in levels])
-    spikes = spikes.reshape(nlevels, nfreqs)
+    # Initialize an empty 2D array for spike rates
+    spikes = np.zeros((nlevels, nfreqs))
+
+    for ff in range(nfreqs):
+        for ll in range(nlevels):
+            freq = freqs[ff]
+            level = levels[ll]
+            # Calculate mean spike rate for the given freq and level
+            spikes[ll, ff] = np.mean(r[0][(r[1] == freq) & (r[2] == level)])
 
     # Smooth the FRA
     # spikes, X, X2 = smooth_fra_cg(spikes)
     spikes = smoothFRA(spikes)
 
     # srate = np.mean(spikes.flatten()) + (1 / 5) * np.max(spikes)
-    srate = np.min(spikes.flatten())
+    # Calculate the threshold (srate)
+    srate = np.min(spikes)  # Use the minimum spike rate as the threshold
+
     # Determine boundaries of FRA
-    bounds = np.zeros(nfreqs)
+    bounds = np.zeros(nfreqs, dtype=int)
 
     for ii in range(nfreqs):
-        for jj in range(nlevels-1):
-            if spikes[jj, ii] < srate and jj < nlevels:
-                pass
-            elif spikes[jj, ii] >= srate and jj == 0:
-                pass
-            elif spikes[jj, ii] >= srate and jj > 0 and spikes[jj - 1, ii] >= srate and jj < nlevels - 2 and \
-                    spikes[jj + 1, ii] >= srate and spikes[jj + 2, ii] > srate:
-                bounds[ii] = jj - 1
+        for jj in range(nlevels):
+            if spikes[jj, ii] >= srate:
+                bounds[ii] = jj
                 break
-            elif spikes[jj, ii] >= srate and jj == nlevels - 1 and spikes[jj - 1, ii] >= srate and jj > nlevels - 2 \
-                    and spikes[jj + 1, ii] >= srate:
-                bounds[ii] = jj - 1
-                break
-            elif spikes[jj, ii] >= srate and jj == nlevels and spikes[jj - 1, ii] >= srate:
-                bounds[ii] = jj - 1
-                break
-            elif spikes[jj, ii] >= srate and jj == nlevels:
-                bounds[ii] = nlevels
-            elif jj == nlevels and spikes[jj, ii] < srate:
-                bounds[ii] = nlevels + 1
 
-    for ii in range(1, len(bounds) - 1):
-        if bounds[ii - 1] == nlevels + 1 and bounds[ii + 1] == nlevels + 1 and bounds[ii] < 4:
+    # Handle special cases for the highest level and no response
+    for ii in range(1, len(bounds)):
+        if bounds[ii] == 0:
+            bounds[ii] = nlevels
+        if bounds[ii] == bounds[ii - 1] and bounds[ii] < nlevels:
             bounds[ii] = nlevels + 1
-
     Th = (min(bounds) - 1) * 10
     a = np.where(bounds == min(bounds))[0]
     u = np.unique(freqs)
     bfs = np.log(u[a])
-    bf = np.exp(np.mean(bfs))
+    # bf = np.exp(np.mean(bfs))
+    bf = np.exp(np.mean(bfs)) / 1000  # Convert to kHz
+
     data = spikes
 
     # Plot the FRA

@@ -26,14 +26,18 @@ def highpass_filter(file_path, file_name, tank, output_folder):
     # Add paths and load the MATLAB .mat file
     # file_path = 'D:/Data/F1815_Cruella/weekfebruary282022/F1815_Cruella/'
     # file_name = 'Recording_Session_Date_01-Mar-2022_Time_15-56-19.mat'
-    mat_data = scipy.io.loadmat(file_path + file_name)
-    block = file.split('')[4]
+    mat_data = pd.read_csv(file_path + file, delimiter='\t')
+    # recblock is in the name of the file
+    block = file.split()[3]
+    # remove the .txt
+    block = block[:-4]
+
     #
     # # Extract relevant data from the MATLAB .mat file
     # tank = 'D:/Electrophysiological Data/F1815_Cruella/'
     # block = 'Block1-10'
     #concatenate tank and block
-    full_nd_path = tank + block[0]
+    full_nd_path = tank + block
     try:
         data = tdt.read_block(full_nd_path)
     except:
@@ -43,9 +47,10 @@ def highpass_filter(file_path, file_name, tank, output_folder):
         # params = data.streams['info']
     fStim = 24414.0625*2
     fs = 24414.0625
-    StartSamples = mat_data['StartTime'].flatten()
+    StartSamples = mat_data['StartTime']
     sTimes = StartSamples  # seconds
-
+    #convert sTimes to numpy
+    sTimes = np.array(sTimes)
     # Define epoch timings and filter parameters
     sT = sTimes[:, np.newaxis] - 0.2
     sT = np.hstack((sT, sT + 1))  # epoch so total duration is 0.8s
@@ -67,11 +72,12 @@ def highpass_filter(file_path, file_name, tank, output_folder):
     # Design the bandpass filter using ellip
     b, a = ellip(6, 0.1, 40, Wp, btype='band')
 
-    streams = ['BB_2', 'BB_3', 'BB_4', 'BB_5']
+    streams = ['BB_2', 'BB_3']
+
 
     for i2 in range(len(streams)):
         traces = []
-        for ss in range(sT.shape[0]-1):
+        for ss in range(sT.shape[0] - 1):
             # Epoch and filter
             try:
                 dat = data.streams[streams[i2]].data[:, sT[ss, 0]:sT[ss, 1]]
@@ -82,24 +88,16 @@ def highpass_filter(file_path, file_name, tank, output_folder):
             traces_ss = [scipy.signal.filtfilt(b, a, dat[cc, :]) for cc in range(16)]
             traces.append(np.vstack(traces_ss))
 
-        #save as matlab file as well
-        # sio.savemat(output_folder + f'HPf{block[0]}{i2 + 1}.mat', {'traces': traces})
-            #remove all inhomogeneous data
-        drop_list = []
-        for ii in range(len(traces)):
-            #get dimensions
-            dims = traces[ii].shape[1]
-            #if not the same shape as the first one, remove it
-            if dims != traces[0].shape[1]:
-                drop_list.append(ii)
-        traces = np.delete(traces, drop_list, axis=0)
+        # Remove elements with inhomogeneous shapes
+        reference_shape = traces[0].shape[1]
+        drop_list = [ii for ii, trace in enumerate(traces) if trace.shape[1] != reference_shape]
+        traces = [trace for ii, trace in enumerate(traces) if ii not in drop_list]
 
-
-
-
+        # Save traces to a .h5 file
         fname = f'HPf{block[0]}{i2 + 1}.h5'
         with h5py.File(output_folder + fname, 'w') as hf:
-            hf.create_dataset('traces', data=traces, compression='gzip', compression_opts=9)
+            hf.create_dataset('traces', data=np.array(traces), compression='gzip', compression_opts=9)
+
     return block
 
 
@@ -181,10 +179,10 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # file_name = 'Recording_Session_Date_25-Jan-2023_Time_12-26-44.mat'
-    tank = 'E:\Electrophysiological_Data\F1604_Squinty\FRAs/'
-    output_folder = 'E:\Electrophysiological_Data\F1604_Squinty\FRAs/output/'
+    tank = 'E:\Electrophysiological_Data\F1306_Firefly/'
+    output_folder = 'E:\Electrophysiological_Data\F1306_Firefly/FRAS/'
 
-    file_path = 'D:\Data\F1306_Firefly\F1306_Firefly\FRAs/'
+    file_path = 'D:\Data\F1306_Firefly\F1306_Firefly\FRAS/'
     #get a lsit of all the files in the directory
     import os
     files = os.listdir(file_path)
@@ -197,9 +195,11 @@ if __name__ == '__main__':
         print(file)
         #load a txt file
         #read a .txt. file instead of a mat data file
-        mat_data = pd.read_csv(file, delimiter='\t')
-        #recblock is in the name of the file
-        block = file.split('')[4]
+        mat_data = pd.read_csv(file_path + file, delimiter='\t')
+        # recblock is in the name of the file
+        block = file.split()[3]
+        # remove the .txt
+        block = block[:-4]
 
 
 
@@ -213,7 +213,7 @@ if __name__ == '__main__':
         # # # print(block)
         # clean_data_pipeline(output_folder, block, side = 'right')
 
-        run_fra('right', file_path, file, output_folder, animal = 'F1604')
+        run_fra('right', file_path, file, output_folder, animal = 'F1306')
         # run_fra('left', file_path, file, output_folder)
 
 

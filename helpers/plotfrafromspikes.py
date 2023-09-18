@@ -7,19 +7,35 @@ from helpers.FRAbounds2 import FRAbounds
 import scipy
 import h5py
 import pickle
+import pandas as pd
+
+
 
 
 def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
-    data = scipy.io.loadmat(file_path + file_name)
-    block = data['recBlock']
+    if animal == 'F1306':
+        data = pd.read_csv(file_path + file_name, delimiter='\t')
+        # recblock is in the name of the file
+        block = file_name.split()[3]
+        # remove the .txt
+        block = block[:-4]
+    else:
+        data = scipy.io.loadmat(file_path + file_name)
+        block = data['recBlock']
     try:
-        freqs = data['currTrialDets']['Freq'][0][0].flatten()
+        if animal == 'F1306':
+            freqs = data['Pitch']
+            lvls = data['Atten']
+            lvls = 80 - lvls
+        else:
+            freqs = data['currTrialDets']['Freq'][0][0].flatten()
+            lvls = data['currTrialDets']['Lvl'][0][0].flatten()
+            lvls = 80 - lvls
     except:
         print('no freqs')
         return
     #remove the last freqwuency
-    lvls = data['currTrialDets']['Lvl'][0][0].flatten()
-    lvls = 80 - lvls
+
     fname = f'{output_folder}spikes{block[0]}{side}.pkl'
     #read the pkl file
     try:
