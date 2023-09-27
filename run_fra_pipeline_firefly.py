@@ -94,7 +94,7 @@ def highpass_filter(file_path, file_name, tank, output_folder):
         traces = [trace for ii, trace in enumerate(traces) if ii not in drop_list]
 
         # Save traces to a .h5 file
-        fname = f'HPf{block[0]}{i2 + 1}.h5'
+        fname = f'HPf{block}{i2 + 1}.h5'
         with h5py.File(output_folder + fname, 'w') as hf:
             hf.create_dataset('traces', data=np.array(traces), compression='gzip', compression_opts=9)
 
@@ -105,12 +105,12 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
 
 
     if side == 'right':
-        fname = f'{output_folder}HPf{block[0]}1.h5'
-        fname2 = f'{output_folder}HPf{block[0]}2.h5'
+        fname = f'{output_folder}HPf{block}1.h5'
+        fname2 = f'{output_folder}HPf{block}2.h5'
 
     elif side == 'left':
-        fname = f'{output_folder}HPf{block[0]}3.h5'
-        fname2 = f'{output_folder}HPf{block[0]}4.h5'
+        fname = f'{output_folder}HPf{block}3.h5'
+        fname2 = f'{output_folder}HPf{block}4.h5'
 
     # Access the traces from the loaded data
     try:
@@ -166,9 +166,9 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
     #check spikes is not empty
     if spikes_data.size == 0:
         print('No spikes found!')
-    print('saving spikes' + block[0] + side + '.h5')
+    print('saving spikes' + block + side + '.h5')
     #save as pickle file
-    with open(output_folder + 'spikes' + block[0] + side + '.pkl', 'wb') as f:
+    with open(output_folder + 'spikes' + block + side + '.pkl', 'wb') as f:
         pickle.dump(spikes_data, f)
     # #save to output folder
     # with h5py.File(output_folder + 'spikes' + block[0] + side + '.h5', 'w') as f:
@@ -206,12 +206,12 @@ if __name__ == '__main__':
         #
         # block = mat_data['recBlock']
         # #
-        # block = highpass_filter(file_path, file, tank, output_folder)
-        #
-        # # block = highpass_filter(file_path, file, tank, output_folder)
+        block = highpass_filter(file_path, file, tank, output_folder)
         # #
-        # # # print(block)
-        # clean_data_pipeline(output_folder, block, side = 'right')
+        # # # block = highpass_filter(file_path, file, tank, output_folder)
+        # # #
+        # # # # print(block)
+        clean_data_pipeline(output_folder, block, side = 'right')
 
         run_fra('right', file_path, file, output_folder, animal = 'F1306')
         # run_fra('left', file_path, file, output_folder)

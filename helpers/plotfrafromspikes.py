@@ -13,7 +13,7 @@ import pandas as pd
 
 
 def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
-    if animal == 'F1306':
+    if animal == 'F1306' or animal == 'F1405':
         data = pd.read_csv(file_path + file_name, delimiter='\t')
         # recblock is in the name of the file
         block = file_name.split()[3]
@@ -23,7 +23,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
         data = scipy.io.loadmat(file_path + file_name)
         block = data['recBlock']
     try:
-        if animal == 'F1306':
+        if animal == 'F1306' or animal == '1405':
             freqs = data['Pitch']
             lvls = data['Atten']
             lvls = 80 - lvls
@@ -35,8 +35,8 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
         print('no freqs')
         return
     #remove the last freqwuency
-    if animal == 'F1306':
-        fname = f'{output_folder}spikes{block[0]}right.pkl'
+    if animal == 'F1306' or animal == 'F1405':
+        fname = f'{output_folder}spikes{block}right.pkl'
 
     else:
         fname = f'{output_folder}spikes{block[0]}{side}.pkl'
@@ -56,7 +56,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
     spikes = spikes_data
     print('spikes shape:')
     print(spikes.shape)
-    if animal == 'F1306':
+    if animal == 'F1306' or animal == 'F1405':
         if side == 'left':
             #take only the first 16 channels
             spikes = spikes[:16, :]
@@ -73,7 +73,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
         for i2 in range(len(spikes[i])):
             spikesintrial = spikes[i][i2]
             #filter spikes in trial to be between 0.2 and 0.3 seconds as epoch was -0.2 s before stim
-            if animal == 'F1702' or 'F1604':
+            if animal == 'F1702' or animal == 'F1604' or animal == 'F1306' or animal == 'F1405':
                 try:
                     spikesintrial = spikesintrial[(spikesintrial >= int(0.1*24414.0625)) & (spikesintrial <= int(0.8*24414.0625))]
                 except:
@@ -175,7 +175,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
 
     if side == 'right':
 
-        if animal == 'F1306':
+        if animal == 'F1306' or animal == '1405':
             orderofwarpelectrodescruella_right = np.fliplr([[3,7,11,15],
                                                   [2,6,10,14],
                                                     [1,5,9,13],
@@ -191,7 +191,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
                                                    [19, 18, 3, 2],
                                                    [17, 16, 1, 0]])
     else:
-        if animal == 'F1306':
+        if animal == 'F1306' or animal == '1405':
             orderofwarpelectrodescruella_right = [[3,7,11,15],
                                                   [2,6,10,14],
                                                     [1,5,9,13],
@@ -208,7 +208,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
                                                [17, 16, 1, 0]])
 
 
-    if animal == 'F1306':
+    if animal == 'F1306' or animal == 'F1405':
         warp_electrodes = np.array([
             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
             11, 12, 13, 14, 15,
@@ -235,7 +235,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
 
     print(tdt_order)
 
-    if animal == 'F1306':
+    if animal == 'F1306' or animal == 'F1405':
         date = file_name.split()
         caldate = date[0]
     else:
@@ -279,7 +279,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
 
         electrode = combined[0, np.where(combined[1, :] == i)]
         # spikes = np.rot90(spikes, -1)
-        if animal == 'F1306':
+        if animal == 'F1306' or animal == 'F1405':
             ax = plt.subplot(4, 4, int(electrode[0][0]) + 1)
         else:
             ax = plt.subplot(8, 4, int(electrode[0][0]) + 1)
@@ -330,12 +330,14 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
 
     #increase the space between the plots
     #increase the size of the figure
-
-    plt.gcf().set_size_inches(10, 15)
+    if animal == 'F1306' or animal == 'F1405':
+        plt.gcf().set_size_inches(10, 10)
+    else:
+        plt.gcf().set_size_inches(10, 15)
     plt.subplots_adjust(wspace=0.6, hspace=0.7)
     #save figure in output folder
     #extract the date from the file name
-    if animal == 'F1306':
+    if animal == 'F1306' or animal == 'F1405':
         plt.suptitle(f'FRA for {block}, {side} side {animal}, {caldate}', fontsize=16)
 
         plt.savefig(f'{output_folder}FRA_for_{block}_{caldate}{side}_side_'+animal+'.pdf', dpi = 300, bbox_inches='tight')
