@@ -23,7 +23,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
         data = scipy.io.loadmat(file_path + file_name)
         block = data['recBlock']
     try:
-        if animal == 'F1306' or animal == '1405':
+        if animal == 'F1306' or animal == 'F1405':
             freqs = data['Pitch']
             lvls = data['Atten']
             lvls = 80 - lvls
@@ -175,7 +175,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
 
     if side == 'right':
 
-        if animal == 'F1306' or animal == '1405':
+        if animal == 'F1306' or animal == 'F1405':
             orderofwarpelectrodescruella_right = np.fliplr([[3,7,11,15],
                                                   [2,6,10,14],
                                                     [1,5,9,13],
@@ -191,7 +191,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
                                                    [19, 18, 3, 2],
                                                    [17, 16, 1, 0]])
     else:
-        if animal == 'F1306' or animal == '1405':
+        if animal == 'F1306' or animal == 'F1405':
             orderofwarpelectrodescruella_right = [[3,7,11,15],
                                                   [2,6,10,14],
                                                     [1,5,9,13],

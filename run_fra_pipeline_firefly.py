@@ -203,17 +203,17 @@ if __name__ == '__main__':
 
 
 
-        #
-        # block = mat_data['recBlock']
         # #
-        block = highpass_filter(file_path, file, tank, output_folder)
-        # #
-        # # # block = highpass_filter(file_path, file, tank, output_folder)
+        # # block = mat_data['recBlock']
         # # #
-        # # # # print(block)
-        clean_data_pipeline(output_folder, block, side = 'right')
+        # block = highpass_filter(file_path, file, tank, output_folder)
+        # # #
+        # # # # block = highpass_filter(file_path, file, tank, output_folder)
+        # # # #
+        # # # # # print(block)
+        # clean_data_pipeline(output_folder, block, side = 'right')
 
-        run_fra('right', file_path, file, output_folder, animal = 'F1306')
+        run_fra('left', file_path, file, output_folder, animal = 'F1306')
         # run_fra('left', file_path, file, output_folder)
 
 
