@@ -1,7 +1,4 @@
-# This is a sample Python script.
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import numpy as np
 import h5py
 import tdt
@@ -11,6 +8,7 @@ from helpers.cleandata2 import clean_data
 import scipy.io as sio
 import scipy
 from helpers.plotfrafromspikes import run_fra
+from helpers.plotpsthfromspikes import run_psth
 from helpers.getspiketimes import get_spike_times
 from scipy.signal import ellip, bilinear, zpk2ss, ss2zpk
 # from helpers.ellipfunc import ellip_filter_design
@@ -177,19 +175,19 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # file_name = 'Recording_Session_Date_25-Jan-2023_Time_12-26-44.mat'
-    tank = 'E:\Electrophysiological_Data\F1606_Windolene\FRAS/'
-    output_folder = 'E:\Electrophysiological_Data\F1606_Windolene\FRAS/'
-
-    file_path = 'D:\Data\F1606_Windolene\FRAS//'
+    tank = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS//'
+    output_folder = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS\output_filtered///'
+    file_path = 'D:\Data\F1815_Cruella\FRAS///'
     #get a lsit of all the files in the directory
     import os
     files = os.listdir(file_path)
 
     #exclude all files that don't end with .mat
     files = [file for file in files if file.endswith('.mat')]
+    files = files[9:13]
     #only the right side good for zola
     for file in files:
-        # print(file)
+        print(file)
         # mat_data = scipy.io.loadmat(file_path + file)
         # block = mat_data['recBlock']
         # # #
@@ -197,8 +195,16 @@ if __name__ == '__main__':
         # #
         # # # print(block)
         # clean_data_pipeline(output_folder, block, side = 'left')
+        # clean_data_pipeline(output_folder, block, side = 'right')
 
-        run_fra('left', file_path, file, output_folder, animal='F1606')
+
+        # run_fra('right', file_path, file, output_folder, animal='F1815')
+        # run_fra('left', file_path, file, output_folder, animal='F1815')
+        run_psth('left', file_path, file, output_folder, animal='F1815')
+        run_psth('right', file_path, file, output_folder, animal='F1815')
+
+
+
         # run_fra('left', file_path, file, output_folder)
 
 
