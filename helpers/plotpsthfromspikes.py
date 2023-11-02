@@ -232,7 +232,6 @@ def run_psth(side, file_path, file_name, output_folder, animal = 'F1702'):
         from mpl_toolkits.axes_grid1 import make_axes_locatable
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
-        cbar = plt.colorbar(ax.imshow(spikes, origin='lower', aspect='auto', cmap='hot'), cax=cax)
         plt.title(f'Channel {i + 1}', fontsize=10)
 
         #have one giant colorbar
