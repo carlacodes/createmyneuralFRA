@@ -12,6 +12,8 @@ import scipy.io as sio
 import scipy
 from helpers.plotfrafromspikes import run_fra
 from helpers.getspiketimes import get_spike_times
+from helpers.plotpsthfromspikes import run_psth
+
 from scipy.signal import ellip, bilinear, zpk2ss, ss2zpk
 # from helpers.ellipfunc import ellip_filter_design
 from helpers.filterfuncs import filtfilthd
@@ -198,7 +200,9 @@ if __name__ == '__main__':
         # # # print(block)
         # clean_data_pipeline(output_folder, block, side = 'right')
 
-        run_fra('right', file_path, file, output_folder, animal='F1702')
+        # run_fra('right', file_path, file, output_folder, animal='F1702')
+        run_psth('right', file_path, file, output_folder, animal='F1702')
+
         # run_fra('left', file_path, file, output_folder)
 
 

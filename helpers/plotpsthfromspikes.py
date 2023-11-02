@@ -264,10 +264,12 @@ def run_psth(side, file_path, file_name, output_folder, animal = 'F1702'):
         bins = psth[1]
         bins = bins[:-1]
         ax.plot(bins,  psth[0])
-        if animal == 'F1702' or animal == 'F1604' or animal == 'F1606' or animal == 'F1306' or animal == 'F1405':
-            ax.set_xticks(np.arange(0.1, 0.2, step=0.05), labels = np.arange(0.0, 0.1, step=0.05))
+        if animal == 'F1604' or animal == 'F1606' or animal == 'F1306' or animal == 'F1405':
+            ax.set_xticks(np.arange(0.1, 0.25, step=0.05), labels = np.arange(0.0,  0.15, step=0.05))
+        elif animal == 'F1702':
+            ax.set_xticks(np.arange(0.1, 0.7, step=0.1), labels = np.arange(0.0,  0.6, step=0.1))
         else:
-            ax.set_xticks(np.arange(0.2, 0.3, step=0.05), labels=np.arange(0.0, 0.1, step=0.05))
+            ax.set_xticks(np.arange(0.2, 0.35, step=0.05), labels=np.arange(0.0, 0.15, step=0.05))
 
         # sns.histplot(data=penguins, x="flipper_length_mm", ax = ax)
         ax.set_title(f'Channel {i + 1}')
