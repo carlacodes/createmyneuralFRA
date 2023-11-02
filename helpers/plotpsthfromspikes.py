@@ -7,8 +7,9 @@ import scipy
 import h5py
 import pickle
 import pandas as pd
-
-
+from elephant import statistics
+import quantities as pq
+from neo.core import SpikeTrain
 
 
 def run_psth(side, file_path, file_name, output_folder, animal = 'F1702'):
@@ -219,7 +220,45 @@ def run_psth(side, file_path, file_name, output_folder, animal = 'F1702'):
             ax = plt.subplot(8, 4, int(electrode[0][0]) + 1)
         #force colorbar to be the same for all plots
 
-        conc_spks = np.concatenate(spikes[i, :])
+        spikes_from_electrode = spikes[i, :]
+        #divide by the sample rate
+#ValueError: If the input is not a spiketrain(s), it must be an MxN numpy array, each cell of which represents the number of (binned) spikes that fall in an interval - not raw spike times.
+
+        #make a list of spike trains
+        spike_trains = []
+        sampling_rate = 24414.0625  # Hz
+
+        for j in range(len(spikes_from_electrode)):#
+            spikesintrial = spikes_from_electrode[j]
+
+            if animal == 'F1702' or animal == 'F1604' or animal == 'F1306' or animal == 'F1405':
+                try:
+                    spikesintrial = spikesintrial[
+                        (spikesintrial >= int(0.1 * 24414.0625)) & (spikesintrial <= int(0.8 * 24414.0625))]
+                    spikesintrial = spikesintrial/sampling_rate
+
+                except:
+                    print('error')
+                    print(spikesintrial)
+            else:
+                try:
+                    spikesintrial = spikesintrial[
+                        (spikesintrial >= int(0.2 * 24414.0625)) & (spikesintrial <= int(0.3 * 24414.0625))]
+                    spikesintrial = spikesintrial/sampling_rate
+                except:
+                    print('error, no spikes')
+                    print(spikesintrial)
+                    continue
+
+            # spike_times_with_units = spikesintrial * pq.s
+            #
+            #
+            # spike_train = SpikeTrain(spike_times_with_units, t_start=0.2 * pq.s, t_stop=0.3* pq.s)
+            spike_trains.append(spikesintrial)
+        #concatenate the spike trains
+        conc_spks = np.concatenate(spike_trains)
+
+
         trials = [np.ones(len(spikes[i, j])) * j for j in range(len(spikes[0, :]))]
         psth = np.histogram(conc_spks, bins=100)
         ax.plot(psth[0])
@@ -231,7 +270,7 @@ def run_psth(side, file_path, file_name, output_folder, animal = 'F1702'):
 
         from mpl_toolkits.axes_grid1 import make_axes_locatable
         divider = make_axes_locatable(ax)
-        cax = divider.append_axes("right", size="5%", pad=0.05)
+        # cax = divider.append_axes("right", size="5%", pad=0.05)
         plt.title(f'Channel {i + 1}', fontsize=10)
 
         #have one giant colorbar

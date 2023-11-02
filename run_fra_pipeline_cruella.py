@@ -184,7 +184,7 @@ if __name__ == '__main__':
 
     #exclude all files that don't end with .mat
     files = [file for file in files if file.endswith('.mat')]
-    files = files[9:13]
+    # files = files[9:13]
     #only the right side good for zola
     for file in files:
         print(file)
