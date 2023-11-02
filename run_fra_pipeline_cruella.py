@@ -175,8 +175,8 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # file_name = 'Recording_Session_Date_25-Jan-2023_Time_12-26-44.mat'
-    tank = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS//'
-    output_folder = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS\output_filtered///'
+    tank = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS/presummer2022//'
+    output_folder = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS\output_filtered///before13072022/'
     file_path = 'D:\Data\F1815_Cruella\FRAS///'
     #get a lsit of all the files in the directory
     import os

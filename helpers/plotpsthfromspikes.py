@@ -231,7 +231,7 @@ def run_psth(side, file_path, file_name, output_folder, animal = 'F1702'):
         for j in range(len(spikes_from_electrode)):#
             spikesintrial = spikes_from_electrode[j]
 
-            if animal == 'F1702' or animal == 'F1604' or animal == 'F1306' or animal == 'F1405':
+            if animal == 'F1702' or animal == 'F1604' or animal == 'F1606' or animal == 'F1306' or animal == 'F1405':
                 try:
                     spikesintrial = spikesintrial[
                         (spikesintrial >= int(0.1 * 24414.0625)) & (spikesintrial <= int(0.8 * 24414.0625))]
@@ -261,8 +261,23 @@ def run_psth(side, file_path, file_name, output_folder, animal = 'F1702'):
 
         trials = [np.ones(len(spikes[i, j])) * j for j in range(len(spikes[0, :]))]
         psth = np.histogram(conc_spks, bins=100)
-        ax.plot(psth[0])
+        bins = psth[1]
+        bins = bins[:-1]
+        ax.plot(bins,  psth[0])
+        if animal == 'F1702' or animal == 'F1604' or animal == 'F1606' or animal == 'F1306' or animal == 'F1405':
+            ax.set_xticks(np.arange(0.1, 0.2, step=0.05), labels = np.arange(0.0, 0.1, step=0.05))
+        else:
+            ax.set_xticks(np.arange(0.2, 0.3, step=0.05), labels=np.arange(0.0, 0.1, step=0.05))
+
+        # sns.histplot(data=penguins, x="flipper_length_mm", ax = ax)
         ax.set_title(f'Channel {i + 1}')
+        #plot the seconds on the x axis based on psth[1]
+        hist_bins = psth[1]
+        max = hist_bins[-1]
+
+        if i == 31:
+            ax.set_ylabel('Spikes per presentation')
+            ax.set_xlabel('Time (s)')
 
         if i in ns_channel_list:
             plt.axvspan(0, spikes.shape[1] - 1, facecolor='grey', alpha=0.5)
