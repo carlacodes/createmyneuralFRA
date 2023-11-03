@@ -180,6 +180,15 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
                                                   [2,6,10,14],
                                                     [1,5,9,13],
                                                     [0,4,8,12]] )
+        elif animal == 'F1604':
+            orderofwarpelectrodescruella_right = [[30, 31, 14, 15],
+                                                   [28, 29, 12 ,13],
+                                                   [26 ,27 ,10 ,11],
+                                                   [24 ,25, 8, 9],
+                                                   [23, 22, 7 ,6],
+                                                   [21, 20, 5, 4],
+                                                   [19, 18, 3, 2],
+                                                   [17, 16, 1, 0]]
 
         else:
             orderofwarpelectrodescruella_right = np.fliplr([[30, 31, 14, 15],
@@ -337,6 +346,9 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
     plt.subplots_adjust(wspace=0.6, hspace=0.7)
     #save figure in output folder
     #extract the date from the file name
+
+    if animal == 'F1604':
+        side = 'left'
     if animal == 'F1306' or animal == 'F1405':
         plt.suptitle(f'FRA for {block}, {side} side {animal}, {caldate}', fontsize=16)
 

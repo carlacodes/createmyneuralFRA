@@ -143,6 +143,17 @@ def run_psth(side, file_path, file_name, output_folder, animal = 'F1702'):
                                                     [1,5,9,13],
                                                     [0,4,8,12]] )
 
+        elif animal == 'F1604': #joe used bb2/bb3 but movements are only in left side
+            orderofwarpelectrodescruella_right = [[30, 31, 14, 15],
+                                                  [28, 29, 12, 13],
+                                                  [26, 27, 10, 11],
+                                                  [24, 25, 8, 9],
+                                                  [23, 22, 7, 6],
+                                                  [21, 20, 5, 4],
+                                                  [19, 18, 3, 2],
+                                                  [17, 16, 1, 0]]
+
+
         else:
             orderofwarpelectrodescruella_right = np.fliplr([[30, 31, 14, 15],
                                                    [28, 29, 12 ,13],
@@ -264,10 +275,11 @@ def run_psth(side, file_path, file_name, output_folder, animal = 'F1702'):
         bins = psth[1]
         bins = bins[:-1]
         ax.plot(bins,  psth[0])
-        if animal == 'F1604' or animal == 'F1606' or animal == 'F1306' or animal == 'F1405':
+        if animal == 'F1604'  or animal == 'F1306' or animal == 'F1405':
             ax.set_xticks(np.arange(0.1, 0.25, step=0.05), labels = np.arange(0.0,  0.15, step=0.05))
-        elif animal == 'F1702':
-            ax.set_xticks(np.arange(0.1, 0.7, step=0.1), labels = np.arange(0.0,  0.6, step=0.1))
+        elif animal == 'F1702' or animal == 'F1606':
+            ax.set_xticks(np.arange(0.1, 0.7, step=0.1), labels = np.round(np.arange(0.0,  0.6, step=0.1),1), rotation = 45)
+            #round to 2 decimal places
         else:
             ax.set_xticks(np.arange(0.2, 0.35, step=0.05), labels=np.arange(0.0, 0.15, step=0.05))
 
@@ -303,6 +315,8 @@ def run_psth(side, file_path, file_name, output_folder, animal = 'F1702'):
     plt.subplots_adjust(wspace=0.6, hspace=0.7)
     #save figure in output folder
     #extract the date from the file name
+    if animal == 'F1604':
+        side = 'left'
     if animal == 'F1306' or animal == 'F1405':
         plt.suptitle(f'PSTH for {block}, {side} side {animal}, {caldate}', fontsize=16)
 

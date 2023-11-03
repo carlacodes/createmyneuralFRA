@@ -11,8 +11,9 @@ from helpers.cleandata2 import clean_data
 import scipy.io as sio
 import scipy
 from helpers.plotfrafromspikes import run_fra
-from helpers.plotpsthfromspikes import run_psth
 from helpers.getspiketimes import get_spike_times
+from helpers.plotpsthfromspikes import run_psth
+
 from scipy.signal import ellip, bilinear, zpk2ss, ss2zpk
 # from helpers.ellipfunc import ellip_filter_design
 from helpers.filterfuncs import filtfilthd
@@ -49,7 +50,7 @@ def highpass_filter(file_path, file_name, tank, output_folder):
 
     # Define epoch timings and filter parameters
     sT = sTimes[:, np.newaxis] - 0.2
-    sT = np.hstack((sT, sT + 1))  # epoch so total duration is 0.8s
+    sT = np.hstack((sT, sT + 1))  # epoch so total duration is 1s
     sT = (sT * fs).astype(int)  # samples
     f = np.where(sT[:, 0] > 0)[0]  # check first index is not negative
     sT = sT[f, :]
@@ -70,16 +71,11 @@ def highpass_filter(file_path, file_name, tank, output_folder):
 
     streams = ['BB_2', 'BB_3', 'BB_4', 'BB_5']
 
-    for i2 in range(len(streams)):
+    for i2 in range(4):
         traces = []
         for ss in range(sT.shape[0]-1):
             # Epoch and filter
-            try:
-                dat = data.streams[streams[i2]].data[:, sT[ss, 0]:sT[ss, 1]]
-            except:
-                print('error reading stream')
-                print(streams[i2])
-                return block
+            dat = data.streams[streams[i2]].data[:, sT[ss, 0]:sT[ss, 1]]
             traces_ss = [scipy.signal.filtfilt(b, a, dat[cc, :]) for cc in range(16)]
             traces.append(np.vstack(traces_ss))
 
@@ -105,7 +101,8 @@ def highpass_filter(file_path, file_name, tank, output_folder):
 
 
 def clean_data_pipeline(output_folder, block, side = 'right'):
-
+    fname = f'{output_folder}HPf{block[0]}1.h5'
+    fname2 = f'{output_folder}HPf{block[0]}2.h5'
 
     if side == 'right':
         fname = f'{output_folder}HPf{block[0]}1.h5'
@@ -117,8 +114,8 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
 
     # Access the traces from the loaded data
     try:
-        h = h5py.File(fname, 'r')
-        hh = h5py.File(fname2, 'r')
+        h = h5py.File(fname2, 'r')
+        hh = h5py.File(fname, 'r')
         traces_h = h['traces']
         traces_hh = hh['traces']
 
@@ -155,8 +152,8 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
             #get the spike times -0.1s to 0.1s around the stim
             #assuming each trial is 1s long, so 0.2s around the stim
             start = int((0.1)*fs)  # 0.1s before stim
-            end = int((0.3*fs)) # 0.1s after stim
-            t, wv = get_spike_times(cleaned_data[ss][0][cc,:])
+            end = int((0.8*fs)) # 0.1s after stim
+            t, wv = get_spike_times(cleaned_data[ss][0][cc,start:end])
             # t, wv = get_spike_times(cleaned_data[ss][0][cc,:])
             spikes_in_chan.append(t)
 
@@ -202,16 +199,13 @@ if __name__ == '__main__':
         # block = highpass_filter(file_path, file, tank, output_folder)
         block = mat_data['recBlock']
         #
-        # block = highpass_filter(file_path, file, tank, output_folder)
+        block = highpass_filter(file_path, file, tank, output_folder)
         # #
         # # # print(block)
         clean_data_pipeline(output_folder, block, side = 'right')
 
         run_fra('right', file_path, file, output_folder, animal = 'F1604')
         run_psth('right', file_path, file, output_folder, animal = 'F1604')
-
-        # run_fra('left', file_path, file, output_folder)
-
 
 
     # clean_data_pipeline(output_folder, block, side = 'left')
