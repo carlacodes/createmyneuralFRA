@@ -73,9 +73,17 @@ def run_psth(side, file_path, file_name, output_folder, animal = 'F1702'):
         for i2 in range(len(spikes[i])):
             spikesintrial = spikes[i][i2]
             #filter spikes in trial to be between 0.2 and 0.3 seconds as epoch was -0.2 s before stim
-            if animal == 'F1702' or animal == 'F1604' or animal == 'F1306' or animal == 'F1405':
+            if animal == 'F1702' or animal == 'F1306' or animal == 'F1405':
                 try:
                     spikesintrial = spikesintrial[(spikesintrial >= int(0.1*24414.0625)) & (spikesintrial <= int(0.8*24414.0625))]
+                except:
+                    print('error')
+                    print(spikesintrial)
+
+            elif animal == 'F1604':
+                try:
+                    spikesintrial = spikesintrial[
+                        (spikesintrial >= int(0.2 * 24414.0625)) & (spikesintrial <= int(0.8 * 24414.0625))]
                 except:
                     print('error')
                     print(spikesintrial)
@@ -275,11 +283,14 @@ def run_psth(side, file_path, file_name, output_folder, animal = 'F1702'):
         bins = psth[1]
         bins = bins[:-1]
         ax.plot(bins,  psth[0])
-        if animal == 'F1604'  or animal == 'F1306' or animal == 'F1405':
+        if  animal == 'F1306' or animal == 'F1405':
             ax.set_xticks(np.arange(0.1, 0.25, step=0.05), labels = np.arange(0.0,  0.15, step=0.05))
         elif animal == 'F1702' or animal == 'F1606':
             ax.set_xticks(np.arange(0.1, 0.7, step=0.1), labels = np.round(np.arange(0.0,  0.6, step=0.1),1), rotation = 45)
             #round to 2 decimal places
+        elif animal == 'F1604':
+            ax.set_xticks(np.arange(0.2, 0.7, step=0.1), labels = np.round(np.arange(0,  0.5, step=0.1),1), rotation = 45)
+
         else:
             ax.set_xticks(np.arange(0.2, 0.35, step=0.05), labels=np.arange(0.0, 0.15, step=0.05))
 

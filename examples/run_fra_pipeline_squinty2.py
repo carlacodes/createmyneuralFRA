@@ -75,7 +75,12 @@ def highpass_filter(file_path, file_name, tank, output_folder):
         traces = []
         for ss in range(sT.shape[0]-1):
             # Epoch and filter
-            dat = data.streams[streams[i2]].data[:, sT[ss, 0]:sT[ss, 1]]
+            try:
+                dat = data.streams[streams[i2]].data[:, sT[ss, 0]:sT[ss, 1]]
+            except:
+                print('error reading stream')
+                print(streams[i2])
+                return block
             traces_ss = [scipy.signal.filtfilt(b, a, dat[cc, :]) for cc in range(16)]
             traces.append(np.vstack(traces_ss))
 
@@ -190,7 +195,7 @@ if __name__ == '__main__':
     #exclude all files that don't end with .mat
     files = [file for file in files if file.endswith('.mat')]
     #only the right side good for zola and squinty
-    files = ['Recording_Session_Date_09-Mar-2020_Time_14-17-40.mat']
+    # files = ['Recording_Session_Date_09-Mar-2020_Time_14-17-40.mat']
     for file in files:
         print(file)
         mat_data = scipy.io.loadmat(file_path + file)
@@ -203,7 +208,7 @@ if __name__ == '__main__':
         # #
         # # # print(block)
         clean_data_pipeline(output_folder, block, side = 'right')
-
+        #
         run_fra('right', file_path, file, output_folder, animal = 'F1604')
         run_psth('right', file_path, file, output_folder, animal = 'F1604')
 

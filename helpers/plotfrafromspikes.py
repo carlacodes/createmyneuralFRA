@@ -73,12 +73,20 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
         for i2 in range(len(spikes[i])):
             spikesintrial = spikes[i][i2]
             #filter spikes in trial to be between 0.2 and 0.3 seconds as epoch was -0.2 s before stim
-            if animal == 'F1702' or animal == 'F1604' or animal == 'F1306' or animal == 'F1405':
+            if animal == 'F1702'  or animal == 'F1306' or animal == 'F1405':
                 try:
                     spikesintrial = spikesintrial[(spikesintrial >= int(0.1*24414.0625)) & (spikesintrial <= int(0.8*24414.0625))]
                 except:
                     print('error')
                     print(spikesintrial)
+            elif animal == 'F1604':
+                try:
+                    spikesintrial = spikesintrial[
+                        (spikesintrial >= int(0.2 * 24414.0625)) & (spikesintrial <= int(0.8 * 24414.0625))]
+                except:
+                    print('error')
+                    print(spikesintrial)
+
             else:
                 try:
                    spikesintrial = spikesintrial[(spikesintrial >= int(0.2*24414.0625)) & (spikesintrial <= int(0.3*24414.0625))]
