@@ -197,6 +197,18 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
                                                    [21, 20, 5, 4],
                                                    [19, 18, 3, 2],
                                                    [17, 16, 1, 0]]
+        elif animal == 'F1815':
+            orderofwarpelectrodescruella_right = np.fliplr([[30, 31, 14, 15],
+                                                   [28, 29, 12 ,13],
+                                                   [26 ,27 ,10 ,11],
+                                                   [24 ,25, 8, 9],
+                                                   [23, 22, 7 ,6],
+                                                   [21, 20, 5, 4],
+                                                   [19, 18, 3, 2],
+                                                   [17, 16, 1, 0]])
+            orderofwarpelectrodescruella_right = np.rot90(orderofwarpelectrodescruella_right, -1)
+            orderofwarpelectrodescruella_right = np.fliplr(orderofwarpelectrodescruella_right)
+
 
         else:
             orderofwarpelectrodescruella_right = np.fliplr([[30, 31, 14, 15],
@@ -213,6 +225,17 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
                                                   [2,6,10,14],
                                                     [1,5,9,13],
                                                     [0,4,8,12]]
+        elif animal == 'F1815':
+            orderofwarpelectrodescruella_right = np.fliplr([[30, 31, 14, 15],
+                                                   [28, 29, 12 ,13],
+                                                   [26 ,27 ,10 ,11],
+                                                   [24 ,25, 8, 9],
+                                                   [23, 22, 7 ,6],
+                                                   [21, 20, 5, 4],
+                                                   [19, 18, 3, 2],
+                                                   [17, 16, 1, 0]])
+            orderofwarpelectrodescruella_right = np.rot90(orderofwarpelectrodescruella_right, -1)
+            orderofwarpelectrodescruella_right = np.fliplr(orderofwarpelectrodescruella_right)
 
         else:
             orderofwarpelectrodescruella_right = ([[30, 31, 14, 15],
@@ -341,7 +364,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
         cbar = plt.colorbar(ax.imshow(spikes, origin='lower', aspect='auto', cmap='hot'), cax=cax)
-        plt.title(f'Channel {i + 1}', fontsize=10)
+        ax.set_title(f'Channel {i + 1}', fontsize=10)
 
         #have one giant colorbar
         # if i == 31:
@@ -355,7 +378,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
         plt.gcf().set_size_inches(15, 10)
     else:
         plt.gcf().set_size_inches(10, 15)
-    plt.subplots_adjust(wspace=0.6, hspace=0.7)
+    plt.subplots_adjust(wspace=0.8, hspace=0.4)
     #save figure in output folder
     #extract the date from the file name
 
