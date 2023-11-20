@@ -15,4 +15,4 @@ AFTER changing your paths. <br>
 
 Please note this code is designed for TDT data from a 32 channel array (pip install tdt), but can easily be changed to suit
 other file types as the base of this code is just using an array. <br>
-Credits: the PCA cleaning algorithm was adapted from Stephen Town's code, which was originally written in MATLAB.
+Credits: the PCA cleaning algorithm and FRA plotting code was adapted from Stephen Town's code, which was originally written in MATLAB.
