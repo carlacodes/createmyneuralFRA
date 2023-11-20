@@ -198,10 +198,10 @@ if __name__ == '__main__':
         # clean_data_pipeline(output_folder, block, side = 'right')
 
 
-        # run_fra('right', file_path, file, output_folder, animal='F1815')
-        # run_fra('left', file_path, file, output_folder, animal='F1815')
-        run_psth('left', file_path, file, output_folder, animal='F1815')
-        run_psth('right', file_path, file, output_folder, animal='F1815')
+        run_fra('right', file_path, file, output_folder, animal='F1815')
+        run_fra('left', file_path, file, output_folder, animal='F1815')
+        # run_psth('left', file_path, file, output_folder, animal='F1815')
+        # run_psth('right', file_path, file, output_folder, animal='F1815')
 
 
 

@@ -298,6 +298,8 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
         # spikes = np.rot90(spikes, -1)
         if animal == 'F1306' or animal == 'F1405':
             ax = plt.subplot(4, 4, int(electrode[0][0]) + 1)
+        elif animal =='F1815':
+            ax = plt.subplot(4, 8, int(electrode[0][0]) + 1)
         else:
             ax = plt.subplot(8, 4, int(electrode[0][0]) + 1)
         #force colorbar to be the same for all plots
