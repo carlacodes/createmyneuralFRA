@@ -1,7 +1,7 @@
 Sick of using old MATLAB code from 2006 for your frequency area plots? This code provides an easy solution to 
 convert your neural data from filetype to FRA plot for your PI. <br>
 
-Examples are in the examples/ folder.
+Other examples are in the examples/ folder.
 Install the requirements.txt first for the dependencies:
 ```
 pip install -r requirements.txt
