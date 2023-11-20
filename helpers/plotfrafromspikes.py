@@ -198,16 +198,15 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
                                                    [19, 18, 3, 2],
                                                    [17, 16, 1, 0]]
         elif animal == 'F1815':
-            orderofwarpelectrodescruella_right = np.fliplr([[30, 31, 14, 15],
+            orderofwarpelectrodescruella_right = [[30, 31, 14, 15],
                                                    [28, 29, 12 ,13],
                                                    [26 ,27 ,10 ,11],
                                                    [24 ,25, 8, 9],
                                                    [23, 22, 7 ,6],
                                                    [21, 20, 5, 4],
                                                    [19, 18, 3, 2],
-                                                   [17, 16, 1, 0]])
-            orderofwarpelectrodescruella_right = np.rot90(orderofwarpelectrodescruella_right, -1)
-            orderofwarpelectrodescruella_right = np.fliplr(orderofwarpelectrodescruella_right)
+                                                   [17, 16, 1, 0]]
+            orderofwarpelectrodescruella_right = np.rot90(orderofwarpelectrodescruella_right, 1)
 
 
         else:
@@ -226,16 +225,15 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
                                                     [1,5,9,13],
                                                     [0,4,8,12]]
         elif animal == 'F1815':
-            orderofwarpelectrodescruella_right = np.fliplr([[30, 31, 14, 15],
+            orderofwarpelectrodescruella_right = [[30, 31, 14, 15],
                                                    [28, 29, 12 ,13],
                                                    [26 ,27 ,10 ,11],
                                                    [24 ,25, 8, 9],
                                                    [23, 22, 7 ,6],
                                                    [21, 20, 5, 4],
                                                    [19, 18, 3, 2],
-                                                   [17, 16, 1, 0]])
-            orderofwarpelectrodescruella_right = np.rot90(orderofwarpelectrodescruella_right, -1)
-            orderofwarpelectrodescruella_right = np.fliplr(orderofwarpelectrodescruella_right)
+                                                   [17, 16, 1, 0]]
+            orderofwarpelectrodescruella_right = np.rot90(orderofwarpelectrodescruella_right, 1)
 
         else:
             orderofwarpelectrodescruella_right = ([[30, 31, 14, 15],
@@ -288,7 +286,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
 
 
     f32file = 0
-    for i in tdt_order.flatten():
+    for count, i in enumerate(tdt_order.flatten()):
         spike_counts[i] = sumspikes[i, :]
         try:
             FRAinput = np.empty((len( spike_counts[i]), 3))
@@ -320,11 +318,11 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
         electrode = combined[0, np.where(combined[1, :] == i)]
         # spikes = np.rot90(spikes, -1)
         if animal == 'F1306' or animal == 'F1405':
-            ax = plt.subplot(4, 4, int(electrode[0][0]) + 1)
+            ax = plt.subplot(4, 4, count+ 1)
         elif animal =='F1815':
-            ax = plt.subplot(4, 8, int(electrode[0][0]) + 1)
+            ax = plt.subplot(4, 8, count+1)
         else:
-            ax = plt.subplot(8, 4, int(electrode[0][0]) + 1)
+            ax = plt.subplot(8, 4, count + 1)
         #force colorbar to be the same for all plots
         ax.imshow(spikes, origin='lower', aspect='auto',cmap='hot')
         #plot the bounds as white lines

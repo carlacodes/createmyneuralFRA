@@ -200,7 +200,7 @@ if __name__ == '__main__':
         # # # print(block)
         # clean_data_pipeline(output_folder, block, side = 'left')
 
-        # run_fra('left', file_path, file, output_folder, animal='F1606')
+        run_fra('left', file_path, file, output_folder, animal='F1606')
         run_psth('left', file_path, file, output_folder, animal='F1606')
 
         # run_fra('left', file_path, file, output_folder)
