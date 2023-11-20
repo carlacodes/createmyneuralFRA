@@ -351,6 +351,8 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
     #increase the size of the figure
     if animal == 'F1306' or animal == 'F1405':
         plt.gcf().set_size_inches(10, 10)
+    elif animal == 'F1815':
+        plt.gcf().set_size_inches(15, 10)
     else:
         plt.gcf().set_size_inches(10, 15)
     plt.subplots_adjust(wspace=0.6, hspace=0.7)
