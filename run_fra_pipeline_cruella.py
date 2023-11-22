@@ -176,8 +176,8 @@ def clean_data_pipeline(output_folder, block, side = 'right'):
 if __name__ == '__main__':
     # file_name = 'Recording_Session_Date_25-Jan-2023_Time_12-26-44.mat'
     tank = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS//'
-    output_folder = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS\output_filtered//'
-    file_path = 'D:\Data\F1815_Cruella\FRAS///'
+    output_folder = 'E:\Electrophysiological_Data\F1815_Cruella\FRAS\output_filtered//before13072022//'
+    file_path = 'D:\Data\F1815_Cruella\FRAS/before13072022/'
     #get a lsit of all the files in the directory
     import os
     files = os.listdir(file_path)
