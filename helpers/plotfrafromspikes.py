@@ -344,7 +344,7 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
 
         if i in ns_channel_list:
             plt.axvspan(0, spikes.shape[1] - 1, facecolor='grey', alpha=0.5)
-        if i == 24:
+        if count == 31:
             plt.xticks(np.linspace(0, spikes.shape[1] - 1, num=6),
                        np.round(np.exp(np.linspace(np.log(min(freqs)), np.log(max(freqs)), num=6)) / 1000, 2), fontsize=8, rotation = 45)
             plt.yticks(np.linspace(0, spikes.shape[0] - 1, num=6),
@@ -374,9 +374,13 @@ def run_fra(side, file_path, file_name, output_folder, animal = 'F1702'):
         plt.gcf().set_size_inches(10, 10)
     elif animal == 'F1815':
         plt.gcf().set_size_inches(15, 10)
+        plt.subplots_adjust(wspace=0.65, hspace=0.5)
+
     else:
         plt.gcf().set_size_inches(10, 15)
-    plt.subplots_adjust(wspace=0.8, hspace=0.4)
+        plt.subplots_adjust(wspace=0.65, hspace=0.6)
+
+    # plt.subplots_adjust(wspace=0.6, hspace=0.6)
     #save figure in output folder
     #extract the date from the file name
 
